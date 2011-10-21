@@ -1,12 +1,15 @@
 #!/usr/bin/php
 <?php
 /**
- * gère les commande de création, execution de migrations
+ * PhpDbMigration
+ * 
+ * Author : Alexandre GUIDET
  */
 const UP = "up";
 const DOWN = "down";
 const ENV_PATH = "environments";
 const MIGRATIONS_PATH = "migrations";
+const DEFAULT_ENVIRONMENT = "development";
 
 class MigrationManager
 {
@@ -16,7 +19,6 @@ class MigrationManager
         "preproduction",
         "production",
     );
-    private $_migrationPath = "migrations";
     private $_changelogTable = "changelog";
     private $_migrationFileList = array();
     private $_migrationIdList = array();
@@ -55,6 +57,7 @@ class MigrationManager
 
     public function __destruct()
     {
+
     }
 
     /**
@@ -63,7 +66,7 @@ class MigrationManager
      */
     private function init()
     {
-        $configurationTemplate =<<< CONFIGURATION_TEMPLATE
+        $configurationTemplate = <<< CONFIGURATION_TEMPLATE
 ; BDD %s configuration
 url="pgsql:dbname=mydatabse;host=myhost"
 username=user
@@ -74,7 +77,7 @@ password=password
 ; create table changelog (id numeric(20,0), applied_at character varying(25), description character varying(255));
 changelog=changelog
 CONFIGURATION_TEMPLATE;
-        
+
         if (!is_dir(MIGRATIONS_PATH))
         {
             mkdir(MIGRATIONS_PATH);
@@ -85,7 +88,7 @@ CONFIGURATION_TEMPLATE;
             mkdir(ENV_PATH);
             foreach ($this->_environments as $environment)
             {
-               file_put_contents(ENV_PATH . "/" . $environment . ".ini", sprintf($configurationTemplate, $environment));
+                file_put_contents(ENV_PATH . "/" . $environment . ".ini", sprintf($configurationTemplate, $environment));
             }
         }
     }
@@ -97,7 +100,7 @@ CONFIGURATION_TEMPLATE;
             return true;
         }
 
-        $env = "dev";
+        $env = DEFAULT_ENVIRONMENT;
         if (isset($this->_options["env"]))
         {
             if (!file_exists(ENV_PATH . "/" . $this->_options["env"] . ".ini"))
@@ -430,7 +433,7 @@ TEMPLATE;
 
     private function migrate($migrationId, $migrationFile, $upOrDown)
     {
-        $fileContent = file_get_contents($this->_migrationPath . "/" . $migrationFile);
+        $fileContent = file_get_contents(MIGRATIONS_PATH . "/" . $migrationFile);
         $upDown = explode("--//@UNDO", $fileContent);
         try
         {
@@ -504,7 +507,7 @@ TEMPLATE;
     {
         $migrationList = array();
 
-        if ($handle = opendir($this->_migrationPath))
+        if ($handle = opendir(MIGRATION_PATH))
         {
             while (false !== ($file = readdir($handle)))
             {
