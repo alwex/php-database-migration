@@ -3,27 +3,64 @@
 /**
  * PhpDbMigration
  * 
- * Author : Alexandre GUIDET
+ * Author : GUIDET Alexandre
  */
 const UP = "up";
 const DOWN = "down";
 const ENV_PATH = "environments";
 const MIGRATIONS_PATH = "migrations";
 const DEFAULT_ENVIRONMENT = "development";
+const DEFAULT_DRIVER = "psql";
+const DEFAULT_DATABASE = "mybdd";
+const DEFAULT_HOST = "localhost";
+const DEFAULT_LOGIN = "login";
+const DEFAULT_PASSWORD = "password";
+const DEFAULT_CHANGELOG_TABLE = "changelog";
 
 class MigrationManager
 {
 
+    /**
+     * default classic environment list
+     * @var array
+     */
     private $_environments = array(
         "development",
         "preproduction",
         "production",
     );
+
+    /**
+     * default changelog table
+     * @var string
+     */
     private $_changelogTable = "changelog";
+
+    /**
+     * migrations file list
+     * @var type
+     */
     private $_migrationFileList = array();
+
+    /**
+     * migrations id list
+     * @var type
+     */
     private $_migrationIdList = array();
+    /**
+     * allowed options
+     * @var type
+     */
     private $_longOpts = array(
+        // init required options
         "init::",
+        "driver:",
+        "database:",
+        "host:",
+        "login:",
+        "password:",
+        "changelog:",
+        // other actions
         "status::",
         "generate:",
         "up::",
@@ -66,29 +103,49 @@ class MigrationManager
      */
     private function init()
     {
-        $configurationTemplate = <<< CONFIGURATION_TEMPLATE
+
+        if (is_dir(ENV_PATH))
+        {
+            $this->showWarning("Already initialized");
+        }
+        else if (!isset($this->_options["driver"]) || !isset($this->_options["database"]) || !isset($this->_options["host"]) || !isset($this->_options["login"]) || !isset($this->_options["password"]) || !isset($this->_options["changelog"]))
+        {
+            $initUsage = <<< INIT_USAGE
+Example:
+    
+./migrate --init --driver=<driver> --database=<database_name> --host=<host> --login=<database_login> --password=<database_password> --changelog=<changelog_table>
+
+INIT_USAGE;
+            $this->showNotice($initUsage);
+        }
+        else
+        {
+            $configurationTemplate = <<< CONFIGURATION_TEMPLATE
 ; BDD %s configuration
-url="pgsql:dbname=mydatabse;host=myhost"
-username=user
-password=password
+url="%s:dbname=%s;host=%s"
+username=%s
+password=%s
 
 ; name of the changelog table
 ; id | applied_at | description
-; create table changelog (id numeric(20,0), applied_at character varying(25), description character varying(255));
-changelog=changelog
+; create table %s (id numeric(20,0), applied_at character varying(25), description character varying(255));
+changelog=%s
 CONFIGURATION_TEMPLATE;
 
-        if (!is_dir(MIGRATIONS_PATH))
-        {
-            mkdir(MIGRATIONS_PATH);
-        }
-
-        if (!is_dir(ENV_PATH))
-        {
-            mkdir(ENV_PATH);
-            foreach ($this->_environments as $environment)
+            if (!is_dir(MIGRATIONS_PATH))
             {
-                file_put_contents(ENV_PATH . "/" . $environment . ".ini", sprintf($configurationTemplate, $environment));
+                mkdir(MIGRATIONS_PATH);
+            }
+
+            if (!is_dir(ENV_PATH))
+            {
+                mkdir(ENV_PATH);
+                foreach ($this->_environments as $environment)
+                {
+                    file_put_contents(ENV_PATH . "/" . $environment . ".ini", sprintf(
+                                    $configurationTemplate, $environment, $this->_options["driver"], $this->_options["database"], $this->_options["host"], $this->_options["login"], $this->_options["password"], $this->_options["changelog"], $this->_options["changelog"]
+                            ));
+                }
             }
         }
     }
@@ -99,22 +156,6 @@ CONFIGURATION_TEMPLATE;
         {
             return true;
         }
-
-        $env = DEFAULT_ENVIRONMENT;
-        if (isset($this->_options["env"]))
-        {
-            if (!file_exists(ENV_PATH . "/" . $this->_options["env"] . ".ini"))
-            {
-                exit(ENV_PATH . "/" . $this->_options["env"] . ".ini not found\n");
-            }
-            else
-            {
-                $env = $this->_options["env"];
-            }
-        }
-
-        $this->_config = parse_ini_file(ENV_PATH . "/" . $env . ".ini");
-        $this->_changelogTable = $this->_config["changelog"];
 
         if (isset($this->_options["generate"]))
         {
@@ -179,6 +220,31 @@ CONFIGURATION_TEMPLATE;
         }
     }
 
+    /**
+     * load configuration file
+     */
+    private function config()
+    {
+        $env = DEFAULT_ENVIRONMENT;
+        if (isset($this->_options["env"]))
+        {
+            if (!file_exists(ENV_PATH . "/" . $this->_options["env"] . ".ini"))
+            {
+                exit(ENV_PATH . "/" . $this->_options["env"] . ".ini not found\n");
+            }
+            else
+            {
+                $env = $this->_options["env"];
+            }
+        }
+
+        $this->_config = parse_ini_file(ENV_PATH . "/" . $env . ".ini");
+        $this->_changelogTable = $this->_config["changelog"];
+    }
+
+    /**
+     * show some help
+     */
     private function showUsage()
     {
         $usage = <<<USAGE
@@ -218,16 +284,19 @@ USAGE;
                 $this->processActionGenerate($this->_options["generate"]);
                 break;
             case "up":
+                $this->config();
                 $this->loadMigrationList();
                 $this->connect();
                 $this->processActionUp();
                 break;
             case "down":
+                $this->config();
                 $this->loadMigrationList();
                 $this->connect();
                 $this->processActionDown();
                 break;
             case "status":
+                $this->config();
                 $this->loadMigrationList();
                 $this->connect();
                 $this->processActionStatus();
@@ -306,9 +375,12 @@ TEMPLATE;
         $result = $this->_db->query("SELECT id FROM " . $this->_changelogTable . " ORDER BY id");
 
         $alreadyDone = array();
-        foreach ($result as $row)
+        if ($result)
         {
-            $alreadyDone[$row["id"]] = $row["id"];
+            foreach ($result as $row)
+            {
+                $alreadyDone[$row["id"]] = $row["id"];
+            }
         }
 
         // on controle que la migration indiqué n'a pas déjà été jouée
@@ -479,7 +551,6 @@ TEMPLATE;
                     $this->showSuccess("DOWN SUCCESS");
                     break;
             }
-            echo "\n";
 
             if (!isset($this->_options["transactional"]))
             {
@@ -506,8 +577,10 @@ TEMPLATE;
     private function loadMigrationList()
     {
         $migrationList = array();
+        $migrationIdList = array();
+        $migrationFileList = array();
 
-        if ($handle = opendir(MIGRATION_PATH))
+        if ($handle = opendir(MIGRATIONS_PATH))
         {
             while (false !== ($file = readdir($handle)))
             {
