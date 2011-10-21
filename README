@@ -38,7 +38,7 @@ Commands:
   --down=<version>          Undoes migrations applied to the database. Down to version (included).
   --force                   Run or undoes only specified migration (not recommended).
   --transactional           Rollback all applied migration up or down on error.
-  --status
+  --status                  Show migrations status (applied, unapplied ect...).
 
 Examples:
 ./migrate [--generate <migration_name>]
