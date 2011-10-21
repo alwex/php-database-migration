@@ -1,3 +1,32 @@
+= PhpDbMigration - full PHP database migration tool =
+
+This is a full standalone PHP tool inspired by the rails database migration tool and MyBatis.
+It merge the functionnality of the two tools and has been desined to be as flexible as possible.
+
+== Initialization ==
+
+The first time the tool is run, it needs a first initialization like the following:
+
+./migrate --init --driver=<driver> --database=<database> --host=<host> --login=<db_login> --password=<db_password> --changelog=<changelog_table_name>
+
+Example:
+
+./migrate --init --driver=pgsql --database=php_migration_test --host=localhost --login=my_login --password=my_password --changelog=changelog
+
+wich will create the following directories/files
+
+./environments
+     |
+     ` development.ini
+     ` preproduction.ini
+     ` production.ini
+
+./migrations
+
+just edit/change the environment ini files in order to match with your database access.
+
+== Usage ==
+
 Usage: ./migrate command [parameters] [--env=<environment>]
 
 Commands:

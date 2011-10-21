@@ -147,6 +147,24 @@ CONFIGURATION_TEMPLATE;
                             ));
                 }
             }
+
+            $initializationDone = <<<INIT_DONE
+======= Initialization =======
+
+Configuration files created:
+   ./environments
+       |
+       ` development.ini
+       ` preproduction.ini
+       ` production.ini
+
+Migration directory created:
+   ./migrations
+
+You may modify the environemnts configuration files
+
+INIT_DONE;
+            $this->showNotice($initializationDone);
         }
     }
 
@@ -309,8 +327,6 @@ USAGE;
 
     private function processActionStatus()
     {
-        $this->loadMigrationList();
-
         $migrationsPending = array();
         foreach ($this->_migrationFileList as $migrationId => $aMigration)
         {
