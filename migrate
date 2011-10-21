@@ -11,11 +11,17 @@ const MIGRATIONS_PATH = "migrations";
 class MigrationManager
 {
 
+    private $_environments = array(
+        "development",
+        "preproduction",
+        "production",
+    );
     private $_migrationPath = "migrations";
     private $_changelogTable = "changelog";
     private $_migrationFileList = array();
     private $_migrationIdList = array();
     private $_longOpts = array(
+        "init::",
         "status::",
         "generate:",
         "up::",
@@ -35,63 +41,94 @@ class MigrationManager
 
     public function __construct()
     {
-        $options = getopt($this->_shortOpts, $this->_longOpts);
+        $this->_options = getopt($this->_shortOpts, $this->_longOpts);
 
-        if (!$this->validate($options))
+        if (!$this->validate())
         {
             $this->showUsage();
         }
         else
         {
-            $this->_options = $options;
-            $this->loadMigrationList();
-            $this->connect();
-            $this->process($options);
+            $this->process();
         }
     }
 
     public function __destruct()
     {
-        IF (null != $this->_db)
-        {
+    }
 
+    /**
+     * initialize environments configuration files
+     * and migration directory
+     */
+    private function init()
+    {
+        $configurationTemplate =<<< CONFIGURATION_TEMPLATE
+; BDD %s configuration
+url="pgsql:dbname=mydatabse;host=myhost"
+username=user
+password=password
+
+; name of the changelog table
+; id | applied_at | description
+; create table changelog (id numeric(20,0), applied_at character varying(25), description character varying(255));
+changelog=changelog
+CONFIGURATION_TEMPLATE;
+        
+        if (!is_dir(MIGRATIONS_PATH))
+        {
+            mkdir(MIGRATIONS_PATH);
+        }
+
+        if (!is_dir(ENV_PATH))
+        {
+            mkdir(ENV_PATH);
+            foreach ($this->_environments as $environment)
+            {
+               file_put_contents(ENV_PATH . "/" . $environment . ".ini", sprintf($configurationTemplate, $environment));
+            }
         }
     }
 
-    private function validate($options)
+    private function validate()
     {
-        $env = "dev";
-        if (isset($options["env"]))
+        if (isset($this->_options['init']))
         {
-            if (!file_exists("environments/" . $options["env"] . ".ini"))
+            return true;
+        }
+
+        $env = "dev";
+        if (isset($this->_options["env"]))
+        {
+            if (!file_exists(ENV_PATH . "/" . $this->_options["env"] . ".ini"))
             {
-                exit("environments/" . $options["env"] . ".ini not found\n");
+                exit(ENV_PATH . "/" . $this->_options["env"] . ".ini not found\n");
             }
             else
             {
-                $env = $options["env"];
+                $env = $this->_options["env"];
             }
         }
 
-        $this->_config = parse_ini_file("environments/" . $env . ".ini");
+        $this->_config = parse_ini_file(ENV_PATH . "/" . $env . ".ini");
         $this->_changelogTable = $this->_config["changelog"];
 
-        if (isset($options["generate"]))
+        if (isset($this->_options["generate"]))
         {
             return true;
         }
 
-        if (isset($options["up"]))
+        if (isset($this->_options["up"]))
         {
             return true;
         }
 
-        if (isset($options["down"]))
+        if (isset($this->_options["down"]))
         {
             return true;
         }
 
-        if (isset($options["status"]))
+        if (isset($this->_options["status"]))
         {
             return true;
         }
@@ -99,22 +136,26 @@ class MigrationManager
         return false;
     }
 
-    private function getAction($options)
+    private function getAction()
     {
         $action = "";
-        if (isset($options["generate"]))
+        if (isset($this->_options["init"]))
+        {
+            $action = "init";
+        }
+        if (isset($this->_options["generate"]))
         {
             $action = "generate";
         }
-        elseif (isset($options["up"]))
+        elseif (isset($this->_options["up"]))
         {
             $action = "up";
         }
-        elseif (isset($options["down"]))
+        elseif (isset($this->_options["down"]))
         {
             $action = "down";
         }
-        elseif (isset($options["status"]))
+        elseif (isset($this->_options["status"]))
         {
             $action = "status";
         }
@@ -163,21 +204,30 @@ USAGE;
         $this->showNotice($usage);
     }
 
-    private function process($options)
+    private function process()
     {
-        switch ($this->getAction($options))
+        switch ($this->getAction($this->_options))
         {
+            case "init":
+                $this->init();
+                break;
             case "generate":
-                $this->processActionGenerate($options["generate"]);
+                $this->processActionGenerate($this->_options["generate"]);
                 break;
             case "up":
-                $this->processActionUp($options);
+                $this->loadMigrationList();
+                $this->connect();
+                $this->processActionUp();
                 break;
             case "down":
-                $this->processActionDown($options);
+                $this->loadMigrationList();
+                $this->connect();
+                $this->processActionDown();
                 break;
             case "status":
-                $this->processActionStatus($options);
+                $this->loadMigrationList();
+                $this->connect();
+                $this->processActionStatus();
                 break;
             default:
                 $this->showError("unknown action");
@@ -185,7 +235,7 @@ USAGE;
         }
     }
 
-    private function processActionStatus($options)
+    private function processActionStatus()
     {
         $this->loadMigrationList();
 
@@ -202,7 +252,6 @@ USAGE;
 
         ksort($migrationsPending);
 
-        $this->connect();
         $migrationsDone = $this->_db->query("SELECT id, applied_at, description FROM " . $this->_changelogTable . " ORDER BY id");
         if (false === $migrationsDone)
         {
@@ -245,10 +294,9 @@ TEMPLATE;
         file_put_contents($realFileName, sprintf($template, str_replace("_", " ", $fileName)));
 
         $this->showSuccess("migration: " . $realFileName . "\n");
-        exit(0);
     }
 
-    private function processActionUp($options)
+    private function processActionUp()
     {
         $upTo = $this->_options["up"];
 
@@ -313,9 +361,9 @@ TEMPLATE;
         }
     }
 
-    private function processActionDown($options)
+    private function processActionDown()
     {
-        $downTo = $options["down"];
+        $downTo = $this->_options["down"];
         $result = $this->_db->query("SELECT id FROM " . $this->_changelogTable . " ORDER BY id DESC");
 
         $alreadyDone = array();
@@ -335,7 +383,7 @@ TEMPLATE;
 
         // si le paramètre force à été fournis, il faut alors
         // annuler QUE la migration indiquée
-        if (false !== $downTo && isset($options["force"]))
+        if (false !== $downTo && isset($this->_options["force"]))
         {
             $this->migrate($downTo, $this->_migrationFileList[$downTo], DOWN);
         }
@@ -390,7 +438,7 @@ TEMPLATE;
             {
                 throw new Exception("INVALID MIGRATION FILE: " . $migrationFile);
             }
-            
+
             $sql = "";
             if (!isset($this->_options["transactional"]))
             {
