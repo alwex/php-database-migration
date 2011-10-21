@@ -1,0 +1,17 @@
+Usage: ./migrate command [parameters] [--env=<environment>]
+
+Commands:
+  --env=<environment>       Environment to configure. Default environment is 'dev'.
+  --generate <description>  Creates a new migration with the provided description.
+  --up                      Run unapplied migrations, ALL by default.
+  --up=<version>            Run unapplied migrations up to version (included).
+  --down                    Undoes migrations applied to the database. ONE by default.
+  --down=<version>          Undoes migrations applied to the database. Down to version (included).
+  --force                   Run or undoes only specified migration (not recommended).
+  --transactional           Rollback all applied migration up or down on error.
+  --status
+
+Examples:
+./migrate [--generate <migration_name>]
+./migrate [--up | --up=<version> | --down | --down=<version>] [--transactional] [--force] [--env=<environment>]
+./migrate [--status] [--env=<environment>]
