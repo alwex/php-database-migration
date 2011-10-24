@@ -152,11 +152,10 @@ CONFIGURATION_TEMPLATE;
 ======= Initialization =======
 
 Configuration files created:
-   ./environments
-       |
-       ` development.ini
-       ` preproduction.ini
-       ` production.ini
+  ./environments
+         |----development.ini
+         |----preproduction.ini
+         |----production.ini
 
 Migration directory created:
    ./migrations
