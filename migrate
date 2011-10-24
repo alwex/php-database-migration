@@ -161,9 +161,12 @@ Migration directory created:
    ./migrations
 
 You may modify the environemnts configuration files
+and create the changelog table %s
+
+create table %s (id numeric(20,0), applied_at character varying(25), description character varying(255));
 
 INIT_DONE;
-            $this->showNotice($initializationDone);
+            $this->showNotice(sprintf($initializationDone, $this->_options["changelog"], $this->_options["changelog"]));
         }
     }
 
