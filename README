@@ -18,7 +18,7 @@ wich will create the following directories/files
 ./environments
      |----development.ini
      |----preproduction.ini
-     |----production.ini
+     `----production.ini
 
 ./migrations
 

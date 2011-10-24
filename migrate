@@ -155,7 +155,7 @@ Configuration files created:
   ./environments
          |----development.ini
          |----preproduction.ini
-         |----production.ini
+         `----production.ini
 
 Migration directory created:
    ./migrations
