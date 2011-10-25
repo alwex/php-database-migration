@@ -207,19 +207,19 @@ INIT_DONE;
         {
             $action = "init";
         }
-        if (isset($this->_options["generate"]))
+        else if (isset($this->_options["generate"]))
         {
             $action = "generate";
         }
-        elseif (isset($this->_options["up"]))
+        else if (isset($this->_options["up"]))
         {
             $action = "up";
         }
-        elseif (isset($this->_options["down"]))
+        else if (isset($this->_options["down"]))
         {
             $action = "down";
         }
-        elseif (isset($this->_options["status"]))
+        else if (isset($this->_options["status"]))
         {
             $action = "status";
         }
