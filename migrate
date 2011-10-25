@@ -1,9 +1,16 @@
 #!/usr/bin/php
 <?php
 /**
- * PhpDbMigration
+ * PhpDbMigration is a database migration script
+ * management inspired by rake and myBatis
  * 
- * Author : GUIDET Alexandre
+ * @category Database_Migration
+ * @package  PpDbMigration
+ * @author   Alexandre GUIDET <alwex@free.fr>
+ * @license  http://opensource.org/licenses/gpl-license.php GNU Public License
+ * @link     https://github.com/alwex/PhpDbMigration
+ *
+ *
  */
 const UP = "up";
 const DOWN = "down";
@@ -17,6 +24,16 @@ const DEFAULT_LOGIN = "login";
 const DEFAULT_PASSWORD = "password";
 const DEFAULT_CHANGELOG_TABLE = "changelog";
 
+/**
+ * Main class
+ * Handle parameters and do all the work
+ *
+ * @category Database_Migration
+ * @package  PpDbMigration
+ * @author   Alexandre GUIDET <alwex@free.fr>
+ * @license  http://opensource.org/licenses/gpl-license.php GNU Public License
+ * @link     https://github.com/alwex/PhpDbMigration
+ */
 class MigrationManager
 {
 
@@ -47,6 +64,7 @@ class MigrationManager
      * @var type
      */
     private $_migrationIdList = array();
+
     /**
      * allowed options
      * @var type
@@ -78,20 +96,23 @@ class MigrationManager
      */
     private $_db;
 
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         $this->_options = getopt($this->_shortOpts, $this->_longOpts);
 
-        if (!$this->validate())
-        {
-            $this->showUsage();
-        }
-        else
-        {
-            $this->process();
+        if (!$this->_validate()) {
+            $this->_showUsage();
+        } else {
+            $this->_process();
         }
     }
 
+    /**
+     * Destructor
+     */
     public function __destruct()
     {
 
@@ -100,26 +121,28 @@ class MigrationManager
     /**
      * initialize environments configuration files
      * and migration directory
+     *
+     * @return void
      */
-    private function init()
+    private function _init()
     {
 
-        if (is_dir(ENV_PATH))
-        {
-            $this->showWarning("Already initialized");
-        }
-        else if (!isset($this->_options["driver"]) || !isset($this->_options["database"]) || !isset($this->_options["host"]) || !isset($this->_options["login"]) || !isset($this->_options["password"]) || !isset($this->_options["changelog"]))
-        {
+        if (is_dir(ENV_PATH)) {
+            $this->_showWarning("Already initialized");
+        } else if (!isset($this->_options["driver"])
+                || !isset($this->_options["database"])
+                || !isset($this->_options["host"])
+                || !isset($this->_options["login"])
+                || !isset($this->_options["password"])
+                || !isset($this->_options["changelog"])) {
             $initUsage = <<< INIT_USAGE
 Example:
     
 ./migrate --init --driver=<driver> --database=<database_name> --host=<host> --login=<database_login> --password=<database_password> --changelog=<changelog_table>
 
 INIT_USAGE;
-            $this->showNotice($initUsage);
-        }
-        else
-        {
+            $this->_showNotice($initUsage);
+        } else {
             $configurationTemplate = <<< CONFIGURATION_TEMPLATE
 ; BDD %s configuration
 url="%s:dbname=%s;host=%s"
@@ -132,19 +155,17 @@ password=%s
 changelog=%s
 CONFIGURATION_TEMPLATE;
 
-            if (!is_dir(MIGRATIONS_PATH))
-            {
+            if (!is_dir(MIGRATIONS_PATH)) {
                 mkdir(MIGRATIONS_PATH);
             }
 
-            if (!is_dir(ENV_PATH))
-            {
+            if (!is_dir(ENV_PATH)) {
                 mkdir(ENV_PATH);
-                foreach ($this->_environments as $environment)
-                {
+                foreach ($this->_environments as $environment) {
                     file_put_contents(ENV_PATH . "/" . $environment . ".ini", sprintf(
                                     $configurationTemplate, $environment, $this->_options["driver"], $this->_options["database"], $this->_options["host"], $this->_options["login"], $this->_options["password"], $this->_options["changelog"], $this->_options["changelog"]
-                            ));
+                            )
+                    );
                 }
             }
 
@@ -166,94 +187,92 @@ and create the changelog table %s
 create table %s (id numeric(20,0), applied_at character varying(25), description character varying(255));
 
 INIT_DONE;
-            $this->showNotice(sprintf($initializationDone, $this->_options["changelog"], $this->_options["changelog"]));
+            $this->_showNotice(sprintf($initializationDone, $this->_options["changelog"], $this->_options["changelog"]));
         }
     }
 
-    private function validate()
+    /**
+     * validate command line parameters
+     * 
+     * @return boolean
+     */
+    private function _validate()
     {
-        if (isset($this->_options['init']))
-        {
+        if (isset($this->_options['init'])) {
             return true;
         }
 
-        if (isset($this->_options["generate"]))
-        {
+        if (isset($this->_options["generate"])) {
             return true;
         }
 
-        if (isset($this->_options["up"]))
-        {
+        if (isset($this->_options["up"])) {
             return true;
         }
 
-        if (isset($this->_options["down"]))
-        {
+        if (isset($this->_options["down"])) {
             return true;
         }
 
-        if (isset($this->_options["status"]))
-        {
+        if (isset($this->_options["status"])) {
             return true;
         }
 
         return false;
     }
 
-    private function getAction()
+    /**
+     * parse parameters and return the
+     * correct action name to be processed
+     *
+     * @return string
+     */
+    private function _getAction()
     {
         $action = "";
-        if (isset($this->_options["init"]))
-        {
+        if (isset($this->_options["init"])) {
             $action = "init";
-        }
-        else if (isset($this->_options["generate"]))
-        {
+        } else if (isset($this->_options["generate"])) {
             $action = "generate";
-        }
-        else if (isset($this->_options["up"]))
-        {
+        } else if (isset($this->_options["up"])) {
             $action = "up";
-        }
-        else if (isset($this->_options["down"]))
-        {
+        } else if (isset($this->_options["down"])) {
             $action = "down";
-        }
-        else if (isset($this->_options["status"]))
-        {
+        } else if (isset($this->_options["status"])) {
             $action = "status";
         }
 
         return $action;
     }
 
-    private function connect()
+    /**
+     * initialize the database connection
+     * in order to process requested action
+     *
+     * @return void
+     */
+    private function _connect()
     {
-        try
-        {
+        try {
             $this->_db = new PDO($this->_config["url"], $this->_config["username"], $this->_config["password"]);
-        }
-        catch (PDOException $e)
-        {
-            $this->showError($e->getMessage());
+        } catch (PDOException $e) {
+            $this->_showError($e->getMessage());
             exit();
         }
     }
 
     /**
      * load configuration file
+     * 
+     * @return void
      */
-    private function config()
+    private function _config()
     {
         $env = DEFAULT_ENVIRONMENT;
-        if (isset($this->_options["env"]))
-        {
-            if (!file_exists(ENV_PATH . "/" . $this->_options["env"] . ".ini"))
-            {
+        if (isset($this->_options["env"])) {
+            if (!file_exists(ENV_PATH . "/" . $this->_options["env"] . ".ini")) {
                 exit(ENV_PATH . "/" . $this->_options["env"] . ".ini not found\n");
-            }
-            else
-            {
+            } else {
                 $env = $this->_options["env"];
             }
         }
@@ -264,8 +283,10 @@ INIT_DONE;
 
     /**
      * show some help
+     *
+     * @return void
      */
-    private function showUsage()
+    private function _showUsage()
     {
         $usage = <<<USAGE
 No command specified.
@@ -290,48 +311,59 @@ Examples:
 
 USAGE;
 
-        $this->showNotice($usage);
+        $this->_showNotice($usage);
     }
 
-    private function process()
+    /**
+     * process the requested action
+     * handle all possibility, if an action
+     * must be added, it may be done here
+     *
+     * @return void
+     */
+    private function _process()
     {
-        switch ($this->getAction($this->_options))
-        {
+        switch ($this->_getAction($this->_options)) {
             case "init":
-                $this->init();
+                $this->_init();
                 break;
             case "generate":
-                $this->processActionGenerate($this->_options["generate"]);
+                $this->_processActionGenerate($this->_options["generate"]);
                 break;
             case "up":
-                $this->config();
-                $this->loadMigrationList();
-                $this->connect();
-                $this->processActionUp();
+                $this->_config();
+                $this->_loadMigrationList();
+                $this->_connect();
+                $this->_processActionUp();
                 break;
             case "down":
-                $this->config();
-                $this->loadMigrationList();
-                $this->connect();
-                $this->processActionDown();
+                $this->_config();
+                $this->_loadMigrationList();
+                $this->_connect();
+                $this->_processActionDown();
                 break;
             case "status":
-                $this->config();
-                $this->loadMigrationList();
-                $this->connect();
-                $this->processActionStatus();
+                $this->_config();
+                $this->_loadMigrationList();
+                $this->_connect();
+                $this->_processActionStatus();
                 break;
             default:
-                $this->showError("unknown action");
+                $this->_showError("unknown action");
                 exit(2);
         }
     }
 
-    private function processActionStatus()
+    /**
+     * return the migration status at the
+     * time action is requested
+     *
+     * @return void
+     */
+    private function _processActionStatus()
     {
         $migrationsPending = array();
-        foreach ($this->_migrationFileList as $migrationId => $aMigration)
-        {
+        foreach ($this->_migrationFileList as $migrationId => $aMigration) {
             $migrationsPending[$migrationId]["id"] = $migrationId;
             $migrationsPending[$migrationId]["applied_at"] = "Pending...         ";
             $migrationDesctiption = str_replace($migrationId . "_", "", $aMigration);
@@ -343,21 +375,18 @@ USAGE;
         ksort($migrationsPending);
 
         $migrationsDone = $this->_db->query("SELECT id, applied_at, description FROM " . $this->_changelogTable . " ORDER BY id");
-        if (false === $migrationsDone)
-        {
+        if (false === $migrationsDone) {
             $migrationsDone = array();
         }
 
-        foreach ($migrationsDone as $aMigrationDone)
-        {
+        foreach ($migrationsDone as $aMigrationDone) {
             $migrationsPending[$aMigrationDone["id"]] = $aMigrationDone;
         }
 
         echo "\n";
         echo "ID              Applied At           description\n";
         echo "=====================================================================================\n";
-        foreach ($migrationsPending as $row)
-        {
+        foreach ($migrationsPending as $row) {
             echo $row["id"] . "  ";
             echo $row["applied_at"] . "  ";
             echo $row["description"] . "\n";
@@ -366,10 +395,13 @@ USAGE;
     }
 
     /**
-     * génère la migration
-     * @param type $fileName 
+     * generate migration script
+     * 
+     * @param type $fileName script
+     * 
+     * @return void
      */
-    private function processActionGenerate($fileName)
+    private function _processActionGenerate($fileName)
     {
         $template = <<<TEMPLATE
 --// %s
@@ -383,29 +415,31 @@ TEMPLATE;
         $realFileName = "migrations/" . $timestamp . "_" . $fileName . ".sql";
         file_put_contents($realFileName, sprintf($template, str_replace("_", " ", $fileName)));
 
-        $this->showSuccess("migration: " . $realFileName . "\n");
+        $this->_showSuccess("migration: " . $realFileName . "\n");
     }
 
-    private function processActionUp()
+    /**
+     * handle the up action
+     *
+     * @return void
+     */
+    private function _processActionUp()
     {
         $upTo = $this->_options["up"];
 
         $result = $this->_db->query("SELECT id FROM " . $this->_changelogTable . " ORDER BY id");
 
         $alreadyDone = array();
-        if ($result)
-        {
-            foreach ($result as $row)
-            {
+        if ($result) {
+            foreach ($result as $row) {
                 $alreadyDone[$row["id"]] = $row["id"];
             }
         }
 
         // on controle que la migration indiqué n'a pas déjà été jouée
         // si c'est le cas, on sort du programme
-        if (false !== $upTo && in_array($upTo, $alreadyDone))
-        {
-            $this->showWarning("migration already done");
+        if (false !== $upTo && in_array($upTo, $alreadyDone)) {
+            $this->_showWarning("migration already done");
             exit(2);
         }
 
@@ -414,196 +448,171 @@ TEMPLATE;
 
         // si le paramètre force à été fournis, il ne faut alors
         // jouer QUE la migration indiquée
-        if (false !== $upTo && isset($this->_options["force"]))
-        {
-            $this->migrate($upTo, $toMigrate[$upTo], UP);
-        }
-        else
-        {
-            if (isset($this->_options["transactional"]))
-            {
+        if (false !== $upTo && isset($this->_options["force"])) {
+            $this->_migrate($upTo, $toMigrate[$upTo], UP);
+        } else {
+            if (isset($this->_options["transactional"])) {
                 $this->_db->beginTransaction();
             }
 
-            try
-            {
-                foreach ($toMigrate as $migrationId => $aMigrationFile)
-                {
-                    $this->migrate($migrationId, $aMigrationFile, UP);
+            try {
+                foreach ($toMigrate as $migrationId => $aMigrationFile) {
+                    $this->_migrate($migrationId, $aMigrationFile, UP);
                     // si un numéro de migration à été fournis
                     // il faut arrêter la migration à ce numéro de version
-                    if (false !== $upTo && $migrationId === $upTo)
-                    {
+                    if (false !== $upTo && $migrationId === $upTo) {
                         break;
                     }
                 }
 
-                if (isset($this->_options["transactional"]))
-                {
+                if (isset($this->_options["transactional"])) {
                     $this->_db->commit();
                 }
-            }
-            catch (Exception $e)
-            {
-                if (isset($this->_options["transactional"]))
-                {
+            } catch (Exception $e) {
+                if (isset($this->_options["transactional"])) {
                     $this->_db->rollBack();
-                    $this->showError("FAILURE !!! rollback all migrations");
+                    $this->_showError("FAILURE !!! rollback all migrations");
                 }
             }
         }
     }
 
-    private function processActionDown()
+    /**
+     * handle the down action
+     * 
+     * @return void
+     */
+    private function _processActionDown()
     {
         $downTo = $this->_options["down"];
         $result = $this->_db->query("SELECT id FROM " . $this->_changelogTable . " ORDER BY id DESC");
 
         $alreadyDone = array();
-        foreach ($result as $row)
-        {
+        foreach ($result as $row) {
             $alreadyDone[$row["id"]] = $row["id"];
         }
 
         // on controle que la migration indiqué n'a pas déjà été jouée
         // si c'est le cas, on sort du programme
-        if (false !== $downTo && !in_array($downTo, $alreadyDone))
-        {
-            $this->showWarning("migration already pending");
+        if (false !== $downTo && !in_array($downTo, $alreadyDone)) {
+            $this->_showWarning("migration already pending");
             exit(2);
         }
 
 
         // si le paramètre force à été fournis, il faut alors
         // annuler QUE la migration indiquée
-        if (false !== $downTo && isset($this->_options["force"]))
-        {
-            $this->migrate($downTo, $this->_migrationFileList[$downTo], DOWN);
-        }
-        else
-        {
-            if (isset($this->_options["transactional"]))
-            {
+        if (false !== $downTo && isset($this->_options["force"])) {
+            $this->_migrate($downTo, $this->_migrationFileList[$downTo], DOWN);
+        } else {
+            if (isset($this->_options["transactional"])) {
                 $this->_db->beginTransaction();
             }
 
-            try
-            {
-                foreach ($alreadyDone as $migrationId => $migration)
-                {
+            try {
+                foreach ($alreadyDone as $migrationId => $migration) {
                     $toRollback = $this->_migrationFileList[$migrationId];
-                    $this->migrate($migrationId, $toRollback, DOWN);
-                    if (false === $downTo || $migrationId === $downTo)
-                    {
+                    $this->_migrate($migrationId, $toRollback, DOWN);
+                    if (false === $downTo || $migrationId === $downTo) {
                         break;
                     }
                 }
 
-                if (isset($this->_options["transactional"]))
-                {
+                if (isset($this->_options["transactional"])) {
                     $this->_db->commit();
                 }
-            }
-            catch (Exception $e)
-            {
-                if (isset($this->_options["transactional"]))
-                {
+            } catch (Exception $e) {
+                if (isset($this->_options["transactional"])) {
                     $this->_db->rollBack();
-                    $this->showError($e->getMessage());
-                    $this->showError("FAILURE !!! rollback all migrations");
-                }
-                else
-                {
-                    $this->showError($e->getMessage());
+                    $this->_showError($e->getMessage());
+                    $this->_showError("FAILURE !!! rollback all migrations");
+                } else {
+                    $this->_showError($e->getMessage());
                     exit();
                 }
             }
         }
     }
 
-    private function migrate($migrationId, $migrationFile, $upOrDown)
+    /**
+     * process the migration id up or down
+     * 
+     * @param type $migrationId   id of the migration
+     * @param type $migrationFile migration file name
+     * @param type $upOrDown      is it up or down?
+     *
+     * @return void
+     */
+    private function _migrate($migrationId, $migrationFile, $upOrDown)
     {
         $fileContent = file_get_contents(MIGRATIONS_PATH . "/" . $migrationFile);
         $upDown = explode("--//@UNDO", $fileContent);
-        try
-        {
-            if (count($upDown) != 2)
-            {
+        try {
+            if (count($upDown) != 2) {
                 throw new Exception("INVALID MIGRATION FILE: " . $migrationFile);
             }
 
             $sql = "";
-            if (!isset($this->_options["transactional"]))
-            {
+            if (!isset($this->_options["transactional"])) {
                 $this->_db->beginTransaction();
             }
-            switch ($upOrDown)
-            {
+            switch ($upOrDown) {
                 case UP:
                     $migrationDesctiption = str_replace($migrationId . "_", "", $migrationFile);
                     $migrationDesctiption = str_replace("_", " ", $migrationDesctiption);
                     $migrationDesctiption = str_replace(".sql", "", $migrationDesctiption);
 
-                    $this->showNotice("============= UP " . $migrationId . " =============");
+                    $this->_showNotice("============= UP " . $migrationId . " =============");
                     $sql = trim($upDown[0]);
-                    $this->showNotice($sql);
+                    $this->_showNotice($sql);
 
-                    if (false === $this->_db->exec($sql))
-                    {
+                    if (false === $this->_db->exec($sql)) {
                         throw new Exception("UP FAILURE !!!!!");
                     }
                     $this->_db->query("INSERT INTO " . $this->_changelogTable . " (id, applied_at, description) values (" . $migrationId . ", '" . date("Y-m-d H:m:s") . "', '" . $migrationDesctiption . "')");
-                    $this->showSuccess("UP SUCCESS");
+                    $this->_showSuccess("UP SUCCESS");
                     break;
                 case DOWN:
-                    $this->showNotice("============= DOWN " . $migrationId . " =============");
+                    $this->_showNotice("============= DOWN " . $migrationId . " =============");
                     $sql = trim($upDown[1]);
-                    $this->showNotice($sql);
+                    $this->_showNotice($sql);
 
-                    if (false === $this->_db->exec($sql))
-                    {
+                    if (false === $this->_db->exec($sql)) {
                         throw new Exception("DOWN FAILURE !!!!!");
                     }
 
                     $this->_db->query("DELETE FROM " . $this->_changelogTable . " WHERE id = " . $migrationId);
-                    $this->showSuccess("DOWN SUCCESS");
+                    $this->_showSuccess("DOWN SUCCESS");
                     break;
             }
 
-            if (!isset($this->_options["transactional"]))
-            {
+            if (!isset($this->_options["transactional"])) {
                 $this->_db->commit();
             }
-        }
-        catch (Exception $e)
-        {
-            if (!isset($this->_options["transactional"]))
-            {
-                $this->showError($e->getMessage());
+        } catch (Exception $e) {
+            if (!isset($this->_options["transactional"])) {
+                $this->_showError($e->getMessage());
                 $this->_db->rollBack();
-            }
-            else
-            {
+            } else {
                 throw $e;
             }
         }
     }
 
     /**
-     * charge la liste des migration dans le repertoire des migrations
+     * load all available migrations files
+     * 
+     * @return void
      */
-    private function loadMigrationList()
+    private function _loadMigrationList()
     {
         $migrationList = array();
         $migrationIdList = array();
         $migrationFileList = array();
 
-        if ($handle = opendir(MIGRATIONS_PATH))
-        {
-            while (false !== ($file = readdir($handle)))
-            {
-                if (!is_dir($file))
-                {
+        if ($handle = opendir(MIGRATIONS_PATH)) {
+            while (false !== ($file = readdir($handle))) {
+                if (!is_dir($file)) {
                     $tempId = explode("_", $file);
                     $migrationIdList[$tempId[0]] = $tempId[0];
                     $migrationFileList[$tempId[0]] = $file;
@@ -611,8 +620,7 @@ TEMPLATE;
             }
         }
 
-        if (!empty($migrationFileList))
-        {
+        if (!empty($migrationFileList)) {
             ksort($migrationFileList);
             ksort($migrationIdList);
         }
@@ -620,28 +628,56 @@ TEMPLATE;
         $this->_migrationIdList = $migrationIdList;
     }
 
-    private function showError($message)
+    /**
+     * echo error message
+     *
+     * @param type $message the message to show
+     *
+     * @return void
+     */
+    private function _showError($message)
     {
         echo "\033[1;31m";
         echo "\n" . $message . "\n";
         echo "\033[0m";
     }
 
-    private function showSuccess($message)
+    /**
+     * echo success message
+     *
+     * @param type $message the message to show
+     *
+     * @return void
+     */
+    private function _showSuccess($message)
     {
         echo "\033[1;32m";
         echo "\n" . $message . "\n";
         echo "\033[0m";
     }
 
-    private function showWarning($message)
+    /**
+     * echo warning message
+     *
+     * @param type $message the message to show
+     *
+     * @return void
+     */
+    private function _showWarning($message)
     {
         echo "\033[1;33m";
         echo "\n" . $message . "\n";
         echo "\033[0m";
     }
 
-    private function showNotice($message)
+    /**
+     * echo notice message
+     *
+     * @param type $message the message to show
+     * 
+     * @return void
+     */
+    private function _showNotice($message)
     {
         echo "\n" . $message . "\n";
     }
@@ -649,4 +685,4 @@ TEMPLATE;
 }
 
 $migrationManager = new MigrationManager($argv, $argc);
-?>
+
