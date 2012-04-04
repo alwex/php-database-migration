@@ -372,7 +372,6 @@ USAGE;
             $migrationsPending[$migrationId]["description"] = $migrationDesctiption;
         }
 
-        ksort($migrationsPending);
 
         $migrationsDone = $this->_db->query("SELECT id, applied_at, description FROM " . $this->_changelogTable . " ORDER BY id");
         if (false === $migrationsDone) {
@@ -382,6 +381,7 @@ USAGE;
         foreach ($migrationsDone as $aMigrationDone) {
             $migrationsPending[$aMigrationDone["id"]] = $aMigrationDone;
         }
+        ksort($migrationsPending);
 
         echo "\n";
         echo "ID              Applied At           description\n";
