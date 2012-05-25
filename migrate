@@ -1,14 +1,14 @@
 #!/usr/bin/php
 <?php
 /**
- * PhpDbMigration is a database migration script
+ * php-database-migration is a database migration script
  * management inspired by rake and myBatis
  * 
  * @category Database_Migration
- * @package  PpDbMigration
+ * @package  php-database-migration
  * @author   Alexandre GUIDET <alwex@free.fr>
  * @license  http://opensource.org/licenses/gpl-license.php GNU Public License
- * @link     https://github.com/alwex/PhpDbMigration
+ * @link     https://github.com/alwex/php-database-migration
  *
  *
  */
@@ -27,12 +27,6 @@ const DEFAULT_CHANGELOG_TABLE = "changelog";
 /**
  * Main class
  * Handle parameters and do all the work
- *
- * @category Database_Migration
- * @package  PpDbMigration
- * @author   Alexandre GUIDET <alwex@free.fr>
- * @license  http://opensource.org/licenses/gpl-license.php GNU Public License
- * @link     https://github.com/alwex/php-database-migration
  */
 class MigrationManager
 {
