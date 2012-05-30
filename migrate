@@ -248,7 +248,12 @@ INIT_DONE;
     private function _connect()
     {
         try {
-            $this->_db = new PDO($this->_config["url"], $this->_config["username"], $this->_config["password"]);
+            if (isset($this->_config["password"]) && $this->_config["password"] != null && $this->_config["password"] != "") {
+                $this->_db = new PDO($this->_config["url"], $this->_config["username"], $this->_config["password"]);
+            }
+            else {
+                $this->_db = new PDO($this->_config["url"], $this->_config["username"]);
+            }
         } catch (PDOException $e) {
             $this->_showError($e->getMessage());
             exit();
