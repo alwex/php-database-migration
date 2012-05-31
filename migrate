@@ -566,7 +566,12 @@ TEMPLATE;
                     $this->_showNotice($sql);
 
                     if (false === $this->_db->exec($sql)) {
-                        throw new Exception("UP FAILURE !!!!!");
+                        $errorInfo = "";
+                        $pdoError = $this->_db->errorInfo();
+                        foreach ($pdoError as $errorLine) {
+                            $errorInfo .= $errorLine . "\n";
+                        }
+                        throw new Exception("UP FAILURE !!!!!\n\n" . $errorInfo);
                     }
                     $this->_db->query("INSERT INTO " . $this->_changelogTable . " (id, applied_at, description) values (" . $migrationId . ", '" . date("Y-m-d H:m:s") . "', '" . $migrationDesctiption . "')");
                     $this->_showSuccess("UP SUCCESS");
