@@ -23,6 +23,7 @@ const DEFAULT_HOST = "localhost";
 const DEFAULT_LOGIN = "login";
 const DEFAULT_PASSWORD = "password";
 const DEFAULT_CHANGELOG_TABLE = "changelog";
+const DEFAULT_NOTIFICATION_EMAIL_SUBJECT = "SQL scripts applied";
 
 /**
  * Main class
@@ -142,6 +143,11 @@ INIT_USAGE;
 url="%s:dbname=%s;host=%s"
 username=%s
 password=%s
+
+; notification email for SQL migrations
+; uncomment the line below for activation
+; notification_email=
+; notification_email_subject=
 
 ; name of the changelog table
 ; id | applied_at | description
@@ -276,6 +282,7 @@ INIT_DONE;
             }
         }
 
+        $this->_options["env"] = $env;
         $this->_config = parse_ini_file(ENV_PATH . "/" . $env . ".ini");
         $this->_changelogTable = $this->_config["changelog"];
     }
@@ -455,18 +462,36 @@ TEMPLATE;
             }
 
             try {
+                $mailBody = "";
                 foreach ($toMigrate as $migrationId => $aMigrationFile) {
+
                     $this->_migrate($migrationId, $aMigrationFile, UP);
                     // si un numéro de migration à été fournis
                     // il faut arrêter la migration à ce numéro de version
                     if (false !== $upTo && $migrationId === $upTo) {
                         break;
                     }
+
+                    $mailBody .= "\n-- MIGRATION ID " . $migrationId . "\n\n";         
+                    $mailBody .= $this->_getUpScriptForMigration($aMigrationFile);
+
                 }
+                
+                
 
                 if (isset($this->_options["transactional"])) {
                     $this->_db->commit();
                 }
+                
+                // envois de l'email de notification si configuré dans .ini
+                if (isset($this->_config["notification_email"]) && $this->_config["notification_email"] != null) {
+                    $notificationEmailSubject = DEFAULT_NOTIFICATION_EMAIL_SUBJECT;
+                    if (isset($this->_config["notification_email_subject"]) && $this->_config["notification_email_subject"] != null) {
+                        $notificationEmailSubject = $this->_config["notification_email_subject"];
+                    }
+                    mail($this->_config["notification_email"], "[" . $this->_options["env"] . "] " . $notificationEmailSubject, $mailBody);
+                }
+                
             } catch (Exception $e) {
                 if (isset($this->_options["transactional"])) {
                     $this->_db->rollBack();
@@ -601,6 +626,18 @@ TEMPLATE;
                 throw $e;
             }
         }
+    }
+    
+    public function _getUpScriptForMigration($migrationFile)  {
+        $fileContent = file_get_contents(MIGRATIONS_PATH . "/" . $migrationFile);
+        $upDown = explode("--//@UNDO", $fileContent);
+        return $upDown[0];
+    }
+    
+    public function _getDownScriptForMigration($migrationFile)  {
+        $fileContent = file_get_contents(MIGRATIONS_PATH . "/" . $migrationFile);
+        $upDown = explode("--//@UNDO", $fileContent);
+        return $upDown[1];
     }
 
     /**
