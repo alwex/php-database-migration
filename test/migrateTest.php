@@ -29,7 +29,10 @@ class MigrateTest extends PHPUnit_Framework_TestCase {
      */
     public function generateTest()
     {
-        $this->assertContains("my_migration", $this->execute("./migrate --generate my_migration"));
+        $migrationOutput = $this->execute("./migrate --generate my_migration");
+        $migrationOutput = str_replace("\033[1;32mmigration: ", "", $migrationOutput);
+        $migrationOutput = str_replace("\033[0m", "", $migrationOutput);
+        $this->assertContains("my_migration", $migrationOutput);
         $this->assertContains("Pending", $this->execute("./migrate --status --env=test"));
         $this->assertContains("my migration", $this->execute("./migrate --status --env=test"));
     }
