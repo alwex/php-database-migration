@@ -6,7 +6,7 @@ class MigrateTest extends PHPUnit_Framework_TestCase {
     {
         $out = null;
         $stringOut = "";
-        exec($cmd, $out);
+        exec("cd .. && " . $cmd, $out);
         foreach ($out as $aLine)
         {
             $stringOut .= $aLine;
@@ -20,9 +20,8 @@ class MigrateTest extends PHPUnit_Framework_TestCase {
      */
     public function helpTest()
     {
-
-        $this->assertContains("No command specified", $this->execute("../migrate --help"));
-        $this->assertContains("Usage" ,$this->execute("../migrate --help"));
+        $this->assertContains("No command specified", $this->execute("./migrate --help"));
+        $this->assertContains("Usage" ,$this->execute("./migrate --help"));
     }
 
     /**
@@ -30,10 +29,9 @@ class MigrateTest extends PHPUnit_Framework_TestCase {
      */
     public function generateTest()
     {
-
-        var_dump($this->execute("../migrate --generate my_migration"));
-        $this->assertContains("No command specified", $this->execute("../migrate --generate my_migration"));
-        $this->assertContains("Usage" ,$this->execute("../migrate --help"));
+        $this->assertContains("my_migration", $this->execute("./migrate --generate my_migration"));
+        $this->assertContains("Pending", $this->execute("./migrate --status --env=test"));
+        $this->assertContains("my migration", $this->execute("./migrate --status --env=test"));
     }
 
     /**
@@ -41,9 +39,7 @@ class MigrateTest extends PHPUnit_Framework_TestCase {
      */
     public function statusTest()
     {
-
-        var_dump($this->execute("../migrate --status "));
-        $this->assertContains("No command specified", $this->execute("../migrate --status --env=test"));
+        $this->assertContains("description", $this->execute("./migrate --status --env=test"));
     }
 }
 ?>
