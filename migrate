@@ -413,7 +413,7 @@ USAGE;
 --// %s
 -- Migration SQL that makes the change goes here.
 
---//@UNDO
+-- @UNDO
 -- SQL to undo the change goes here.
 
 TEMPLATE;
@@ -570,7 +570,7 @@ TEMPLATE;
     private function _migrate($migrationId, $migrationFile, $upOrDown)
     {
         $fileContent = file_get_contents(MIGRATIONS_PATH . "/" . $migrationFile);
-        $upDown = explode("--//@UNDO", $fileContent);
+        $upDown = explode("-- @UNDO", $fileContent);
         try {
             if (count($upDown) != 2) {
                 throw new Exception("INVALID MIGRATION FILE: " . $migrationFile);
@@ -630,13 +630,13 @@ TEMPLATE;
     
     public function _getUpScriptForMigration($migrationFile)  {
         $fileContent = file_get_contents(MIGRATIONS_PATH . "/" . $migrationFile);
-        $upDown = explode("--//@UNDO", $fileContent);
+        $upDown = explode("-- @UNDO", $fileContent);
         return $upDown[0];
     }
     
     public function _getDownScriptForMigration($migrationFile)  {
         $fileContent = file_get_contents(MIGRATIONS_PATH . "/" . $migrationFile);
-        $upDown = explode("--//@UNDO", $fileContent);
+        $upDown = explode("-- @UNDO", $fileContent);
         return $upDown[1];
     }
 
