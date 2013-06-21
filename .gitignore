@@ -3,3 +3,5 @@ migrations
 environments
 clean.sh
 .project
+.buildpath
+.settings
