@@ -9,7 +9,7 @@ Initialization
 
 The first time the tool is run, it needs a first initialization like the following:
 
-  ./migrate --init --driver=<driver> --database=<database> --host=<host> --login=<db_login> --password=<db_password> --changelog=<changelog_table_name>
+    ./migrate --init --driver=<driver> --database=<database> --host=<host> --login=<db_login> --password=<db_password> --changelog=<changelog_table_name>
 
 Example:
 
