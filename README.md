@@ -1,9 +1,11 @@
-= PhpDbMigration - full PHP database migration tool =
+PhpDbMigration - full PHP database migration tool
+=================================================
 
 This is a full standalone PHP tool inspired by the rails database migration tool and MyBatis.
 It merge the functionnality of the two tools and has been desined to be as flexible as possible.
 
-== Initialization ==
+Initialization
+==============
 
 The first time the tool is run, it needs a first initialization like the following:
 
@@ -24,7 +26,8 @@ wich will create the following directories/files
 
 just edit/change the environment ini files in order to match with your database access.
 
-== Usage ==
+Usage
+=====
 
 Usage: ./migrate command [parameters] [--env=<environment>]
 
