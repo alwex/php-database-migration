@@ -5,44 +5,44 @@ This is a full standalone PHP tool inspired by the rails database migration tool
 It merge the functionnality of the two tools and has been desined to be as flexible as possible.
 
 Initialization
-==============
+--------------
 
 The first time the tool is run, it needs a first initialization like the following:
 
-./migrate --init --driver=<driver> --database=<database> --host=<host> --login=<db_login> --password=<db_password> --changelog=<changelog_table_name>
+    ./migrate --init --driver=<driver> --database=<database> --host=<host> --login=<db_login> --password=<db_password> --changelog=<changelog_table_name>
 
 Example:
 
-./migrate --init --driver=pgsql --database=php_migration_test --host=localhost --login=my_login --password=my_password --changelog=changelog
+    ./migrate --init --driver=pgsql --database=php_migration_test --host=localhost --login=my_login --password=my_password --changelog=changelog
 
 wich will create the following directories/files
 
-./environments
-     |----development.ini
-     |----preproduction.ini
-     `----production.ini
+    ./environments
+         |----development.ini
+         |----preproduction.ini
+         `----production.ini
 
-./migrations
+    ./migrations
 
 just edit/change the environment ini files in order to match with your database access.
 
 Usage
-=====
+-----
 
-Usage: ./migrate command [parameters] [--env=<environment>]
+    Usage: ./migrate command [parameters] [--env=<environment>]
+    
+    Commands:
+      --env=<environment>       Environment to configure. Default environment is 'dev'.
+      --generate <description>  Creates a new migration with the provided description.
+      --up                      Run unapplied migrations, ALL by default.
+      --up=<version>            Run unapplied migrations up to version (included).
+      --down                    Undoes migrations applied to the database. ONE by default.
+      --down=<version>          Undoes migrations applied to the database. Down to version (included).
+      --force                   Run or undoes only specified migration (not recommended).
+      --transactional           Rollback all applied migration up or down on error.
+      --status                  Show migrations status (applied, unapplied ect...).
 
-Commands:
-  --env=<environment>       Environment to configure. Default environment is 'dev'.
-  --generate <description>  Creates a new migration with the provided description.
-  --up                      Run unapplied migrations, ALL by default.
-  --up=<version>            Run unapplied migrations up to version (included).
-  --down                    Undoes migrations applied to the database. ONE by default.
-  --down=<version>          Undoes migrations applied to the database. Down to version (included).
-  --force                   Run or undoes only specified migration (not recommended).
-  --transactional           Rollback all applied migration up or down on error.
-  --status                  Show migrations status (applied, unapplied ect...).
-
-Examples:
-./migrate [--generate <migration_name>]
-./migrate [--up | --up=<version> | --down | --down=<version>] [--transactional] [--force] [--env=<environment>]
-./migrate [--status] [--env=<environment>]
+    Examples:
+    ./migrate [--generate <migration_name>]
+    ./migrate [--up | --up=<version> | --down | --down=<version>] [--transactional] [--force] [--env=<environment>]
+    ./migrate [--status] [--env=<environment>]
