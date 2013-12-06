@@ -3,7 +3,7 @@
 <phpunit
     backupGlobals="false"
     backupStaticAttributes="false"
-    bootstrap="bootstrap.php"
+    bootstrap="./tests/bootstrap.php"
     convertErrorsToExceptions="true"
     convertNoticesToExceptions="true"
     convertWarningsToExceptions="true"
@@ -12,15 +12,10 @@
     colors="true"
     strict="true"
     verbose="true"
-    stopOnFailure="false"
-    timeoutForSmallTests="99999"
-    timeoutForMediumTests="99999"
-    timeoutForLargeTests="99999"
-    >
+    stopOnFailure="false">
     <testsuites>
         <testsuite name="php db migrate test suite">
-            <directory suffix="Test.php">../</directory>
-            <exclude>../inc</exclude>
+            <directory>./test *Test.php</directory>
         </testsuite>
     </testsuites>
 </phpunit>
