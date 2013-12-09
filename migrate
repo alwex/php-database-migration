@@ -442,6 +442,16 @@ TEMPLATE;
             }
         }
 
+        $toMigrate = array_diff_key($this->_migrationFileList, $alreadyDone);
+        ksort($toMigrate);
+
+        // on controle que la migration indiqué existe
+        // si c'est le cas, on sort du programme
+        if (false !== $upTo && !array_key_exists($upTo, $toMigrate)) {
+            $this->_showWarning("migration not found");
+            exit(2);
+        }
+
         // on controle que la migration indiqué n'a pas déjà été jouée
         // si c'est le cas, on sort du programme
         if (false !== $upTo && in_array($upTo, $alreadyDone)) {
@@ -449,8 +459,6 @@ TEMPLATE;
             exit(2);
         }
 
-        $toMigrate = array_diff_key($this->_migrationFileList, $alreadyDone);
-        ksort($toMigrate);
 
         // si le paramètre force à été fournis, il ne faut alors
         // jouer QUE la migration indiquée
@@ -517,7 +525,7 @@ TEMPLATE;
         // on controle que la migration indiqué n'a pas déjà été jouée
         // si c'est le cas, on sort du programme
         if (false !== $downTo && !in_array($downTo, $alreadyDone)) {
-            $this->_showWarning("migration already pending");
+            $this->_showWarning("migration already pending or not found");
             exit(2);
         }
 
