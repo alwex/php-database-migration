@@ -576,9 +576,17 @@ TEMPLATE;
     private function _migrate($migrationId, $migrationFile, $upOrDown)
     {
         $fileContent = file_get_contents(MIGRATIONS_PATH . "/" . $migrationFile);
-        $upDown = explode("-- @UNDO", $fileContent);
+
+        $upDown = array();
+        if (strpos($fileContent, "--//@UNDO") > 0) {
+            $upDown = explode("--//@UNDO", $fileContent);
+        } else {
+            $upDown = explode("-- @UNDO", $fileContent);
+        }
+
         try {
             if (count($upDown) != 2) {
+                print_r($fileContent);
                 throw new Exception("INVALID MIGRATION FILE: " . $migrationFile);
             }
 
@@ -636,13 +644,25 @@ TEMPLATE;
 
     public function _getUpScriptForMigration($migrationFile)  {
         $fileContent = file_get_contents(MIGRATIONS_PATH . "/" . $migrationFile);
-        $upDown = explode("-- @UNDO", $fileContent);
+
+        if (strpos($fileContent, "--//@UNDO") > 0) {
+            $upDown = explode("--//@UNDO", $fileContent);
+        } else {
+            $upDown = explode("-- @UNDO", $fileContent);
+        }
+
         return $upDown[0];
     }
 
     public function _getDownScriptForMigration($migrationFile)  {
         $fileContent = file_get_contents(MIGRATIONS_PATH . "/" . $migrationFile);
-        $upDown = explode("-- @UNDO", $fileContent);
+
+        if (strpos($fileContent, "--//@UNDO") > 0) {
+            $upDown = explode("--//@UNDO", $fileContent);
+        } else {
+            $upDown = explode("-- @UNDO", $fileContent);
+        }
+
         return $upDown[1];
     }
 
