@@ -476,7 +476,7 @@ TEMPLATE;
                     $this->_migrate($migrationId, $aMigrationFile, UP);
                     // si un numéro de migration à été fournis
                     // il faut arrêter la migration à ce numéro de version
-                    if (false !== $upTo && $migrationId === (int)$upTo) {
+                    if (false !== $upTo && (int)$migrationId === (int)$upTo) {
                         break;
                     }
 
@@ -543,7 +543,7 @@ TEMPLATE;
                 foreach ($alreadyDone as $migrationId => $migration) {
                     $toRollback = $this->_migrationFileList[$migrationId];
                     $this->_migrate($migrationId, $toRollback, DOWN);
-                    if (false === $downTo || $migrationId === (int)$downTo) {
+                    if (false === $downTo || (int)$migrationId === (int)$downTo) {
                         break;
                     }
                 }
