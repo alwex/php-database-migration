@@ -3,7 +3,7 @@
 /**
  * php-database-migration is a database migration script
  * management inspired by rake and myBatis
- * 
+ *
  * @category Database_Migration
  * @package  php-database-migration
  * @author   Alexandre GUIDET <alwex@free.fr>
@@ -132,7 +132,7 @@ class MigrationManager
                 || !isset($this->_options["changelog"])) {
             $initUsage = <<< INIT_USAGE
 Example:
-    
+
 ./migrate --init --driver=<driver> --database=<database_name> --host=<host> --login=<database_login> --password=<database_password> --changelog=<changelog_table>
 
 INIT_USAGE;
@@ -193,7 +193,7 @@ INIT_DONE;
 
     /**
      * validate command line parameters
-     * 
+     *
      * @return boolean
      */
     private function _validate()
@@ -268,7 +268,7 @@ INIT_DONE;
 
     /**
      * load configuration file
-     * 
+     *
      * @return void
      */
     private function _config()
@@ -402,9 +402,9 @@ USAGE;
 
     /**
      * generate migration script
-     * 
+     *
      * @param type $fileName script
-     * 
+     *
      * @return void
      */
     private function _processActionGenerate($fileName)
@@ -468,21 +468,19 @@ TEMPLATE;
                     $this->_migrate($migrationId, $aMigrationFile, UP);
                     // si un numéro de migration à été fournis
                     // il faut arrêter la migration à ce numéro de version
-                    if (false !== $upTo && $migrationId === $upTo) {
+                    if (false !== $upTo && $migrationId === (int)$upTo) {
                         break;
                     }
 
-                    $mailBody .= "\n-- MIGRATION ID " . $migrationId . "\n\n";         
+                    $mailBody .= "\n-- MIGRATION ID " . $migrationId . "\n\n";
                     $mailBody .= $this->_getUpScriptForMigration($aMigrationFile);
 
                 }
-                
-                
 
                 if (isset($this->_options["transactional"])) {
                     $this->_db->commit();
                 }
-                
+
                 // envois de l'email de notification si configuré dans .ini
                 if (isset($this->_config["notification_email"]) && $this->_config["notification_email"] != null) {
                     $notificationEmailSubject = DEFAULT_NOTIFICATION_EMAIL_SUBJECT;
@@ -491,7 +489,7 @@ TEMPLATE;
                     }
                     mail($this->_config["notification_email"], "[" . $this->_options["env"] . "] " . $notificationEmailSubject, $mailBody);
                 }
-                
+
             } catch (Exception $e) {
                 if (isset($this->_options["transactional"])) {
                     $this->_db->rollBack();
@@ -503,7 +501,7 @@ TEMPLATE;
 
     /**
      * handle the down action
-     * 
+     *
      * @return void
      */
     private function _processActionDown()
@@ -537,7 +535,7 @@ TEMPLATE;
                 foreach ($alreadyDone as $migrationId => $migration) {
                     $toRollback = $this->_migrationFileList[$migrationId];
                     $this->_migrate($migrationId, $toRollback, DOWN);
-                    if (false === $downTo || $migrationId === $downTo) {
+                    if (false === $downTo || $migrationId === (int)$downTo) {
                         break;
                     }
                 }
@@ -560,7 +558,7 @@ TEMPLATE;
 
     /**
      * process the migration id up or down
-     * 
+     *
      * @param type $migrationId   id of the migration
      * @param type $migrationFile migration file name
      * @param type $upOrDown      is it up or down?
@@ -627,13 +625,13 @@ TEMPLATE;
             }
         }
     }
-    
+
     public function _getUpScriptForMigration($migrationFile)  {
         $fileContent = file_get_contents(MIGRATIONS_PATH . "/" . $migrationFile);
         $upDown = explode("-- @UNDO", $fileContent);
         return $upDown[0];
     }
-    
+
     public function _getDownScriptForMigration($migrationFile)  {
         $fileContent = file_get_contents(MIGRATIONS_PATH . "/" . $migrationFile);
         $upDown = explode("-- @UNDO", $fileContent);
@@ -642,7 +640,7 @@ TEMPLATE;
 
     /**
      * load all available migrations files
-     * 
+     *
      * @return void
      */
     private function _loadMigrationList()
@@ -715,7 +713,7 @@ TEMPLATE;
      * echo notice message
      *
      * @param type $message the message to show
-     * 
+     *
      * @return void
      */
     private function _showNotice($message)

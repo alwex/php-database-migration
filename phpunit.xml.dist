@@ -10,9 +10,14 @@
     syntaxCheck="true"
     processIsolation="false"
     colors="true"
-    strict="true"
     verbose="true"
-    stopOnFailure="false">
+    stopOnError="false"
+    stopOnFailure="false"
+    stopOnIncomplete="false"
+    stopOnSkipped="false"
+    timeoutForSmallTests="5"
+    timeoutForMediumTests="10"
+    timeoutForLargeTests="15">
     <testsuites>
         <testsuite name="php db migrate test suite">
             <directory>./test *Test.php</directory>
