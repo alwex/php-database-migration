@@ -454,9 +454,13 @@ SQL;
 
         $migrationList = array();
         $migrationList[0] = $migrator->doGenerate("test_migration_0");
+        usleep(200000);
         $migrationList[1] = $migrator->doGenerate("test_migration_1");
+        usleep(200000);
         $migrationList[2] = $migrator->doGenerate("test_migration_2");
+        usleep(200000);
         $migrationList[3] = $migrator->doGenerate("test_migration_3");
+        usleep(200000);
         $migrationList[4] = $migrator->doGenerate("test_migration_4");
 
         foreach ($migrationList as $key => $aMigration) {

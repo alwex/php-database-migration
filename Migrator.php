@@ -139,6 +139,10 @@ class Migrate {
     const ACTION_UP = "up";
     const ACTION_DOWN = "down";
     const ACTION_HELP = "help";
+    const ACTION_FORCE = "force";
+
+    // modes
+    const MODE_VERBOSE = "verbose";
 
     private $longOptions = array(
             // init required options
@@ -156,7 +160,8 @@ class Migrate {
             "down::",
             "env:",
             "force::",
-            "transactional::"
+            "transactional::",
+            "verbose::"
     );
 
     private $environmentPath = "environments";
@@ -335,6 +340,16 @@ class Migrate {
     }
 
     /**
+     * initialize db connection
+     */
+    public function connect() {
+        $config = $this->getConfig();
+        $db = new PDO($config['url'], $config['username'], $config['password']);
+        $db->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING );
+        $this->setDb($db);
+    }
+
+    /**
      * initialize class parameters
      */
     private function init() {
@@ -401,29 +416,72 @@ class Migrate {
      */
     public function run() {
 
-        var_dump($this->getOptions());
-        var_dump($this->getConfig());
+        $output = '';
 
-        // the good action is executed
-        switch ($this->getAction()) {
-            case self::ACTION_STATUS:
-                $this->doStatus();
-                break;
-            case self::ACTION_GENERATE:
-                $this->doGenerate();
-                break;
-            case self::ACTION_UP:
-                $this->doUp();
-                break;
-            case self::ACTION_DOWN:
-                $this->doDown();
-                break;
-            default:
-                echo "\nunknown action\n";
-                exit(2);
+        try {
+
+            $options = $this->getOptions();
+            // the good action is executed
+            switch ($this->getAction()) {
+
+                case self::ACTION_STATUS:
+                    $this->connect();
+                    $output = $this->doStatus();
+                    break;
+
+                case self::ACTION_GENERATE:
+                    $migration = $this->doGenerate($options[self::ACTION_GENERATE]);
+                    $output = "\n"
+                        . $migration->getDescription() . "\n"
+                        . "migration file created migrations/" . $migration->getSqlFile()
+                        . "\n";
+
+                    $config = $this->getConfig();
+                    $editor = (isset($config["editor"])) ? $config["editor"] : 'vim';
+                    system($editor . " migrations/". $migration->getSqlFile() ." > `tty`");
+
+                    break;
+
+                case self::ACTION_UP:
+                    $this->connect();
+                    $upTo = $options[self::ACTION_UP];
+                    $migrationId = (! $upTo) ? 0 : $upTo;
+
+                    if (isset($options[self::ACTION_FORCE])) {
+                        $output = $this->doUpForce($migrationId);
+                    } else {
+                        $output = $this->doUp($migrationId);
+                    }
+                    break;
+
+                case self::ACTION_DOWN:
+                    $this->connect();
+                    $downTo = $options[self::ACTION_DOWN];
+                    $migrationId = (! $downTo) ? 0 : $downTo;
+
+                    if (isset($options[self::ACTION_FORCE])) {
+                        $output = $this->doDownForce($migrationId);
+                    } else {
+                        $output = $this->doDown($migrationId);
+                    }
+                    break;
+
+                default:
+                    $output = $this->doHelp();
+            }
+
+        } catch (Exception $e) {
+
+           echo $e->getCode() . " " .$e->getMessage() . "\n";
+
         }
+
+        print_r($output);
     }
 
+    /**
+     *
+     */
     public function getLocaleList() {
 
         $fileList = array_diff(
@@ -459,6 +517,9 @@ class Migrate {
         return $migrationList;
     }
 
+    /**
+     *
+     */
     public function getDbList() {
         $sqlResult = $this->getDb()->query('SELECT * FROM changelog ORDER BY id');
 
@@ -480,6 +541,10 @@ class Migrate {
         return $migrationList;
     }
 
+    /**
+     *
+     * @param unknown $sort
+     */
     public function getMigrationList($sort = SORT_ASC) {
         $localeList = $this->getLocaleList();
         $dbList = $this->getDbList();
@@ -493,6 +558,13 @@ class Migrate {
         }
 
         return $migrationList;
+    }
+
+    /**
+     *
+     */
+    public function doHelp() {
+        return file_get_contents('templates/help.txt');
     }
 
     /**
@@ -525,27 +597,103 @@ class Migrate {
         return $migration;
     }
 
+    /**
+     *
+     * @param unknown $migration
+     */
     private function up(Migration $migration) {
+        $options = $this->getOptions();
+
+        // begin transaction
+        $this->getDb()->beginTransaction();
+
         $date = date("Y-m-d H:i:s");
         // apply migration up
         $this->getDb()->exec($migration->getSqlUp());
+
+        // get the SQL return code
+        $sqlReturnCode = $this->getDb()->errorCode();
 
         // insert into changelog
         $this->getDb()->exec(
                 "INSERT INTO changelog (id, applied_at, description) VALUES (" . $migration->getId() . ", '" . $date . "', '" . $migration->getDescription() . "')"
         );
+
+        if ($sqlReturnCode != '0') {
+            // rollback the migration
+            $this->getDb()->rollBack();
+
+            $errorInfo = $this->getDb()->errorInfo();
+            $errorMessage = "UP Migration failure " . $migration->getSqlFile() . "\n"
+                    . $migration->getSqlDown() . "\n"
+                            . "[" . $errorInfo[0] . "][" . $errorInfo[1] . "] " . $errorInfo[2] . "\n";
+
+            throw new Exception($errorMessage);
+        }
+
+        // commit the migration
+        $this->getDb()->commit();
+
+        $output = "up success " . $migration->getSqlFile() . "\n";
+        if (isset($options[self::MODE_VERBOSE])) {
+            $output .= "========================================\n";
+            $output .= $migration->getSqlUp();
+            $output .= "\n";
+        }
+
+        print_r($output);
     }
 
+    /**
+     *
+     * @param unknown $migration
+     */
     private function down(Migration $migration) {
+        $options = $this->getOptions();
+
+        // begin transaction
+        $this->getDb()->beginTransaction();
+
         // apply migration up
         $this->getDb()->exec($migration->getSqlDown());
+
+        // get the SQL return code
+        $sqlReturnCode = $this->getDb()->errorCode();
 
         // insert into changelog
         $this->getDb()->exec(
                 "DELETE FROM changelog WHERE id = " . $migration->getId()
         );
+
+        if ($sqlReturnCode != '0') {
+            // rollback the migration
+            $this->getDb()->rollBack();
+
+            $errorInfo = $this->getDb()->errorInfo();
+            $errorMessage = "DOWN Migration failure " . $migration->getSqlFile() . "\n"
+                    . $migration->getSqlDown() . "\n"
+                    . "[" . $errorInfo[0] . "][" . $errorInfo[1] . "] " . $errorInfo[2] . "\n";
+
+            throw new Exception($errorMessage);
+        }
+
+        // commit the migration
+        $this->getDb()->commit();
+
+        $output = "down success " . $migration->getSqlFile() . "\n";
+        if (isset($options[self::MODE_VERBOSE])) {
+            $output .= "========================================\n";
+            $output .= $migration->getSqlDown();
+            $output .= "\n";
+        }
+
+        print_r($output);
     }
 
+    /**
+     *
+     * @param unknown $migrationId
+     */
     public function doUpForce($migrationId) {
         $migrationList = $this->getMigrationList();
 
@@ -555,10 +703,14 @@ class Migrate {
         if (! $theMigration->isApplied()) {
             $this->up($theMigration);
         } else {
-            print_r("migration already applied");
+            print_r("migration have already been applied\n");
         }
     }
 
+    /**
+     *
+     * @param unknown $migrationId
+     */
     public function doDownForce($migrationId) {
         $migrationList = $this->getMigrationList();
 
@@ -568,7 +720,7 @@ class Migrate {
         if ($theMigration->isApplied()) {
             $this->down($theMigration);
         } else {
-            print_r("migration have not been applied");
+            print_r("migration have not been applied\n");
         }
     }
 
@@ -584,12 +736,7 @@ class Migrate {
             /* @var $aMigration Migration */
 
             if (! $aMigration->isApplied()) {
-
                 $this->up($aMigration);
-
-                print_r("migration up success");
-            } else {
-                print_r("migration skiped");
             }
 
             // get out if migration is reached
@@ -606,23 +753,21 @@ class Migrate {
      * @param string $migrationId
      */
     public function doDown($migrationId) {
-
         $migrationList = $this->getMigrationList(SORT_DESC);
 
         foreach ($migrationList as $aMigration) {
             /* @var $aMigration Migration */
 
             if ($aMigration->isApplied()) {
-
                 $this->down($aMigration);
 
-                print_r("migration down success");
-            } else {
-                print_r("migration skiped");
+                if (!$migrationId) {
+                    break;
+                }
             }
 
             // get out if migration is reached
-            // and applied
+            // and unapplied
             if (intval($aMigration->getId()) === intval($migrationId)) {
                 break;
             }
@@ -637,8 +782,9 @@ class Migrate {
         $status .= "=========================================================\n";
         foreach ($migrationList as $aMigration) {
             /* @var $aMigration Migration */
+            $appliedAt = ($aMigration->getAppliedAt() != null) ? $aMigration->getAppliedAt() : 'pending...' ;
             $migrationId = $aMigration->getId();
-            $migrationDate = str_pad($aMigration->getAppliedAt(), 19);
+            $migrationDate = str_pad($appliedAt, 19);
             $migrationDescription = $aMigration->getDescription();
 
             $status .= $migrationId . "  "
