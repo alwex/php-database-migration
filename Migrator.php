@@ -6,13 +6,15 @@ class Migration {
     private $description;
     private $sqlFile;
     private $applied;
+    private $version;
 
-    public function Migration($id = null, $appliedAt = null, $description = null, $sqlFile = null, $applied = false) {
+    public function Migration($id = null, $appliedAt = null, $description = null, $sqlFile = null, $applied = false, $version = null) {
         $this->setId($id);
         $this->setAppliedAt($appliedAt);
         $this->setDescription($description);
         $this->setSqlFile($sqlFile);
         $this->setApplied($applied);
+        $this->setVersion($version);
     }
 
     public function getSql() {
@@ -29,6 +31,24 @@ class Migration {
         $sql = $this->getSql();
         $upDown = explode("@UNDO", $sql);
         return $upDown[1];
+    }
+
+    /**
+    * @param string $version
+    * @return Migration
+    */
+    public function setVersion($version)
+    {
+        $this->version = $version;
+        return $this;
+    }
+
+    /**
+    * @return string
+    */
+    public function getVersion()
+    {
+        return $this->version;
     }
 
     /**
@@ -144,6 +164,9 @@ class Migrate {
     // modes
     const MODE_VERBOSE = "verbose";
 
+    // options
+    const OPTION_VERSION = "version";
+
     private $longOptions = array(
             // init required options
             "init::",
@@ -161,7 +184,8 @@ class Migrate {
             "env:",
             "force::",
             "transactional::",
-            "verbose::"
+            "verbose::",
+            "version::"
     );
 
     private $environmentPath = "environments";
@@ -530,7 +554,8 @@ class Migrate {
                     $row['applied_at'],
                     $row['description'],
                     $row['id'] . '_' . str_replace(' ', '_', $row['description']) . '.sql',
-                    true
+                    true,
+                    $row['version']
             );
         }
 
@@ -604,6 +629,8 @@ class Migrate {
     private function up(Migration $migration) {
         $options = $this->getOptions();
 
+        $version = (isset($options[self::OPTION_VERSION])) ? $options[self::OPTION_VERSION] : 'undefined';
+
         // begin transaction
         $this->getDb()->beginTransaction();
 
@@ -616,7 +643,7 @@ class Migrate {
 
         // insert into changelog
         $this->getDb()->exec(
-                "INSERT INTO changelog (id, applied_at, description) VALUES (" . $migration->getId() . ", '" . $date . "', '" . $migration->getDescription() . "')"
+                "INSERT INTO changelog (id, applied_at, description, version) VALUES (" . $migration->getId() . ", '" . $date . "', '" . $migration->getDescription() . "', '" . $version . "')"
         );
 
         if ($sqlReturnCode != '0') {
@@ -778,17 +805,19 @@ class Migrate {
         $migrationList = $this->getMigrationList(SORT_ASC);
 
         $status = "\n";
-        $status .= "ID              Applied At           Description\n";
-        $status .= "=========================================================\n";
+        $status .= "ID              Applied At           Version           Description\n";
+        $status .= "===========================================================================\n";
         foreach ($migrationList as $aMigration) {
             /* @var $aMigration Migration */
             $appliedAt = ($aMigration->getAppliedAt() != null) ? $aMigration->getAppliedAt() : 'pending...' ;
             $migrationId = $aMigration->getId();
-            $migrationDate = str_pad($appliedAt, 19);
+            $migrationDate = str_pad($appliedAt, 19, ' ');
+            $version = str_pad($aMigration->getVersion(), 16, ' ');
             $migrationDescription = $aMigration->getDescription();
 
             $status .= $migrationId . "  "
                     . $migrationDate . "  "
+                    . $version . "  "
                     . $migrationDescription . "\n";
         }
 
