@@ -34,20 +34,18 @@ class Migration {
     }
 
     /**
-    * @param string $version
-    * @return Migration
-    */
-    public function setVersion($version)
-    {
+     * @param string $version
+     * @return Migration
+     */
+    public function setVersion($version) {
         $this->version = $version;
         return $this;
     }
 
     /**
-    * @return string
-    */
-    public function getVersion()
-    {
+     * @return string
+     */
+    public function getVersion() {
         return $this->version;
     }
 
@@ -55,8 +53,7 @@ class Migration {
      * @param boolean $applied
      * @return Migration
      */
-    public function setApplied($applied)
-    {
+    public function setApplied($applied) {
         $this->applied = $applied;
         return $this;
     }
@@ -64,8 +61,7 @@ class Migration {
     /**
      * @return boolean
      */
-    public function isApplied()
-    {
+    public function isApplied() {
         return $this->applied;
     }
 
@@ -73,8 +69,7 @@ class Migration {
      * @param string $sqlFile
      * @return Migration
      */
-    public function setSqlFile($sqlFile)
-    {
+    public function setSqlFile($sqlFile) {
         $this->sqlFile = $sqlFile;
         return $this;
     }
@@ -82,8 +77,7 @@ class Migration {
     /**
      * @return string
      */
-    public function getSqlFile()
-    {
+    public function getSqlFile() {
         return $this->sqlFile;
     }
 
@@ -91,8 +85,7 @@ class Migration {
      * @param string $id
      * @return Migration
      */
-    public function setId($id)
-    {
+    public function setId($id) {
         $this->id = $id;
         return $this;
     }
@@ -100,8 +93,7 @@ class Migration {
     /**
      * @return string
      */
-    public function getId()
-    {
+    public function getId() {
         return $this->id;
     }
 
@@ -109,8 +101,7 @@ class Migration {
      * @param string $appliedAt
      * @return Migration
      */
-    public function setAppliedAt($appliedAt)
-    {
+    public function setAppliedAt($appliedAt) {
         $this->appliedAt = $appliedAt;
         return $this;
     }
@@ -118,8 +109,7 @@ class Migration {
     /**
      * @return string
      */
-    public function getAppliedAt()
-    {
+    public function getAppliedAt() {
         return $this->appliedAt;
     }
 
@@ -127,8 +117,7 @@ class Migration {
      * @param string $description
      * @return Migration
      */
-    public function setDescription($description)
-    {
+    public function setDescription($description) {
         $this->description = $description;
         return $this;
     }
@@ -136,11 +125,9 @@ class Migration {
     /**
      * @return string
      */
-    public function getDescription()
-    {
+    public function getDescription() {
         return $this->description;
     }
-
 }
 
 /**
@@ -195,6 +182,7 @@ class Migrate {
     private $shortOptions = "";
     private $options = null;
     private $action = null;
+    private $version = "";
 
     /**
      * configuration from ini
@@ -207,8 +195,7 @@ class Migrate {
      * @param string $environmentPath
      * @return Migrate
      */
-    public function setEnvironementPath($environmentPath)
-    {
+    public function setEnvironementPath($environmentPath) {
         $this->environmentPath = $environmentPath;
         return $this;
     }
@@ -216,8 +203,7 @@ class Migrate {
     /**
      * @return string
      */
-    public function getEnvironementPath()
-    {
+    public function getEnvironementPath() {
         return $this->environmentPath;
     }
 
@@ -225,8 +211,7 @@ class Migrate {
      * @param string $migrationPath
      * @return Migrate
      */
-    public function setMigrationPath($migrationPath)
-    {
+    public function setMigrationPath($migrationPath) {
         $this->migrationPath = $migrationPath;
         return $this;
     }
@@ -234,8 +219,7 @@ class Migrate {
     /**
      * @return string
      */
-    public function getMigrationPath()
-    {
+    public function getMigrationPath() {
         return $this->migrationPath;
     }
 
@@ -243,8 +227,7 @@ class Migrate {
      * @param string $defaultEnv
      * @return Migrate
      */
-    public function setDefaultEnv($defaultEnv)
-    {
+    public function setDefaultEnv($defaultEnv) {
         $this->defaultEnv = $defaultEnv;
         return $this;
     }
@@ -252,8 +235,7 @@ class Migrate {
     /**
      * @return string
      */
-    public function getDefaultEnv()
-    {
+    public function getDefaultEnv() {
         return $this->defaultEnv;
     }
 
@@ -261,8 +243,7 @@ class Migrate {
      * @param PDO $db
      * @return Migrate
      */
-    public function setDb($db)
-    {
+    public function setDb($db) {
         $this->db = $db;
         return $this;
     }
@@ -270,24 +251,21 @@ class Migrate {
     /**
      * @return PDO
      */
-    public function getDb()
-    {
+    public function getDb() {
         return $this->db;
     }
 
     /**
      * @return array
      */
-    public function getLongOptions()
-    {
+    public function getLongOptions() {
         return $this->longOptions;
     }
 
     /**
      * @return string
      */
-    public function getShortOptions()
-    {
+    public function getShortOptions() {
         return $this->shortOptions;
     }
 
@@ -295,8 +273,7 @@ class Migrate {
      * @param array $options
      * @return Migrate
      */
-    public function setOptions($options)
-    {
+    public function setOptions($options) {
         $this->options = $options;
         return $this;
     }
@@ -304,8 +281,7 @@ class Migrate {
     /**
      * @return array
      */
-    public function getOptions()
-    {
+    public function getOptions() {
         return $this->options;
     }
 
@@ -330,8 +306,7 @@ class Migrate {
      * @param string $action
      * @return Migrate
      */
-    public function setAction($action)
-    {
+    public function setAction($action) {
         $this->action = $action;
         return $this;
     }
@@ -339,9 +314,32 @@ class Migrate {
     /**
      * @return string
      */
-    public function getAction()
-    {
+    public function getAction() {
         return $this->action;
+    }
+
+    /**
+     * @ return string
+     */
+    public function getVersion() {
+        return $this->version;
+    }
+
+    /**
+     * get version
+     */
+    public function initVersion() {
+        $options = $this->getOptions();
+        $config = $this->getConfig();
+
+        $autoDetectVersion = "undefined";
+        if (isset($config[self::OPTION_VERSION])) {
+            $autoDetectVersion = system($config[self::OPTION_VERSION]);
+        }
+
+        $version = (isset($options[self::OPTION_VERSION])) ? $options[self::OPTION_VERSION] : $autoDetectVersion;
+
+        $this->version = $version;
     }
 
     /**
@@ -361,6 +359,9 @@ class Migrate {
 
         // load environnement configuration
         $this->loadConfiguration();
+
+        // init version
+        $this->initVersion();
     }
 
     /**
@@ -456,9 +457,9 @@ class Migrate {
                 case self::ACTION_GENERATE:
                     $migration = $this->doGenerate($options[self::ACTION_GENERATE]);
                     $output = "\n"
-                        . $migration->getDescription() . "\n"
-                        . "migration file created migrations/" . $migration->getSqlFile()
-                        . "\n";
+                            . $migration->getDescription() . "\n"
+                                    . "migration file created migrations/" . $migration->getSqlFile()
+                                    . "\n";
 
                     $config = $this->getConfig();
                     $editor = (isset($config["editor"])) ? $config["editor"] : 'vim';
@@ -496,7 +497,7 @@ class Migrate {
 
         } catch (Exception $e) {
 
-           echo $e->getCode() . " " .$e->getMessage() . "\n";
+            echo $e->getCode() . " " .$e->getMessage() . "\n";
 
         }
 
@@ -614,10 +615,10 @@ class Migrate {
 
         $migration = new Migration();
         $migration->setId($timestamp)
-            ->setSqlFile($migrationFileName)
-            ->setDescription($description)
-            ->setApplied(false)
-            ->setAppliedAt(null);
+        ->setSqlFile($migrationFileName)
+        ->setDescription($description)
+        ->setApplied(false)
+        ->setAppliedAt(null);
 
         return $migration;
     }
@@ -629,7 +630,7 @@ class Migrate {
     private function up(Migration $migration) {
         $options = $this->getOptions();
 
-        $version = (isset($options[self::OPTION_VERSION])) ? $options[self::OPTION_VERSION] : 'undefined';
+        $migration->setVersion($this->getVersion());
 
         // begin transaction
         $this->getDb()->beginTransaction();
@@ -643,7 +644,11 @@ class Migrate {
 
         // insert into changelog
         $this->getDb()->exec(
-                "INSERT INTO changelog (id, applied_at, description, version) VALUES (" . $migration->getId() . ", '" . $date . "', '" . $migration->getDescription() . "', '" . $version . "')"
+                "INSERT INTO changelog (id, applied_at, description, version) VALUES ("
+                . $migration->getId() . ", '"
+                . $date . "', '"
+                . $migration->getDescription() . "', '"
+                . $migration->getVersion() . "')"
         );
 
         if ($sqlReturnCode != '0') {
@@ -699,7 +704,7 @@ class Migrate {
             $errorInfo = $this->getDb()->errorInfo();
             $errorMessage = "DOWN Migration failure " . $migration->getSqlFile() . "\n"
                     . $migration->getSqlDown() . "\n"
-                    . "[" . $errorInfo[0] . "][" . $errorInfo[1] . "] " . $errorInfo[2] . "\n";
+                            . "[" . $errorInfo[0] . "][" . $errorInfo[1] . "] " . $errorInfo[2] . "\n";
 
             throw new Exception($errorMessage);
         }
@@ -817,8 +822,8 @@ class Migrate {
 
             $status .= $migrationId . "  "
                     . $migrationDate . "  "
-                    . $version . "  "
-                    . $migrationDescription . "\n";
+                            . $version . "  "
+                                    . $migrationDescription . "\n";
         }
 
         return $status;

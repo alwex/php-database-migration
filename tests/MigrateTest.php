@@ -1,5 +1,5 @@
 <?php
-require_once dirname(__FILE__) . '/../migrate-new.php';
+require_once dirname(__FILE__) . '/../Migrator.php';
 
 class MigrateTest extends PHPUnit_Framework_TestCase
 {
@@ -19,6 +19,7 @@ class MigrateTest extends PHPUnit_Framework_TestCase
         self::$db->exec("create table changelog (
                 id numeric(20,0),
                 applied_at character varying(25),
+                version character varying(25),
                 description character varying(255)
         )");
 
@@ -145,9 +146,13 @@ class MigrateTest extends PHPUnit_Framework_TestCase
 
         $migrationList = array();
         $migrationList[0] = $migrator->doGenerate("test_migration_0");
+        usleep(50000);
         $migrationList[1] = $migrator->doGenerate("test_migration_1");
+        usleep(50000);
         $migrationList[2] = $migrator->doGenerate("test_migration_2");
+        usleep(50000);
         $migrationList[3] = $migrator->doGenerate("test_migration_3");
+        usleep(50000);
         $migrationList[4] = $migrator->doGenerate("test_migration_4");
 
         foreach ($migrationList as $key => $aMigration) {
@@ -262,9 +267,13 @@ SQL;
 
         $migrationList = array();
         $migrationList[0] = $migrator->doGenerate("test_migration_0");
+        usleep(50000);
         $migrationList[1] = $migrator->doGenerate("test_migration_1");
+        usleep(50000);
         $migrationList[2] = $migrator->doGenerate("test_migration_2");
+        usleep(50000);
         $migrationList[3] = $migrator->doGenerate("test_migration_3");
+        usleep(50000);
         $migrationList[4] = $migrator->doGenerate("test_migration_4");
 
         foreach ($migrationList as $key => $aMigration) {
@@ -358,9 +367,13 @@ SQL;
 
         $migrationList = array();
         $migrationList[0] = $migrator->doGenerate("test_migration_0");
+        usleep(50000);
         $migrationList[1] = $migrator->doGenerate("test_migration_1");
+        usleep(50000);
         $migrationList[2] = $migrator->doGenerate("test_migration_2");
+        usleep(50000);
         $migrationList[3] = $migrator->doGenerate("test_migration_3");
+        usleep(50000);
         $migrationList[4] = $migrator->doGenerate("test_migration_4");
 
         foreach ($migrationList as $key => $aMigration) {
