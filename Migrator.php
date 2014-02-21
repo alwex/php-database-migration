@@ -590,7 +590,7 @@ class Migrate {
      *
      */
     public function doHelp() {
-        return file_get_contents('templates/help.txt');
+        return file_get_contents(dirname(__FILE__) . '/templates/help.txt');
     }
 
     /**
