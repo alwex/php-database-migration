@@ -463,7 +463,7 @@ class Migrate {
 
                     $config = $this->getConfig();
                     $editor = (isset($config["editor"])) ? $config["editor"] : 'vim';
-                    system($editor . " migrations/". $migration->getSqlFile() ." > `tty`");
+                    system($editor . ' ' . $this->getMigrationPath() . '/' . $migration->getSqlFile() ." > `tty`");
 
                     break;
 
