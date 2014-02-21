@@ -1,7 +1,7 @@
 {
     "name": "php-db-migration/php-db-migration",
     "description": "rake and mybatis SQL migration tool",
-    "homepage": "https://github.com/alwex/php-db-migration",
+    "homepage": "https://github.com/alwex/php-database-migration",
     "keywords": ["rake", "mybatis", "migration", "sql"],
     "type": "library",
     "license": "MIT",
