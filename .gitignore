@@ -5,3 +5,4 @@ clean.sh
 .project
 .buildpath
 .settings
+.idea
