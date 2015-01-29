@@ -1,8 +1,8 @@
 nbproject
-migrations
 environments
 clean.sh
 .project
 .buildpath
 .settings
 .idea
+tests/test.sqlite
