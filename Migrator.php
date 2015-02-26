@@ -546,7 +546,7 @@ class Migrate {
      *
      */
     public function getDbList() {
-        $sqlResult = $this->getDb()->query('SELECT * FROM changelog ORDER BY id');
+        $sqlResult = $this->getDb()->query('SELECT * FROM ' .$config['changelog'] .'  ORDER BY id');
 
         $migrationList = array();
         foreach ($sqlResult as $row) {
@@ -644,7 +644,7 @@ class Migrate {
 
         // insert into changelog
         $this->getDb()->exec(
-                "INSERT INTO changelog (id, applied_at, description, version) VALUES ("
+                "INSERT INTO " .$config['changelog'] ." (id, applied_at, description, version) VALUES ("
                 . $migration->getId() . ", '"
                 . $date . "', '"
                 . $migration->getDescription() . "', '"
@@ -694,7 +694,7 @@ class Migrate {
 
         // insert into changelog
         $this->getDb()->exec(
-                "DELETE FROM changelog WHERE id = " . $migration->getId()
+                "DELETE FROM " .$config['changelog'] ." WHERE id = " . $migration->getId()
         );
 
         if ($sqlReturnCode != '0') {
