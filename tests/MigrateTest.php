@@ -26,12 +26,19 @@ class MigrateTest extends PHPUnit_Framework_TestCase
 
         self::$migrationPath = realpath(dirname(__FILE__)) . "/../migrations";
 
-        exec('rm ' . self::$migrationPath . '/*');
+        if (! self::is_dir_empty(self::$migrationPath)) {
+            exec('rm ' . self::$migrationPath . '/*');
+        }
     }
 
     public function setUp() {
         self::$db = new PDO('sqlite:' . self::$dbName, '', '');
         self::$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    }
+
+    public static function is_dir_empty($dir) {
+        if (!is_readable($dir)) return NULL;
+        return (count(scandir($dir)) == 2);
     }
 
     /**
