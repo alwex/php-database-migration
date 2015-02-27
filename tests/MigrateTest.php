@@ -9,17 +9,15 @@ class MigrateTest extends PHPUnit_Framework_TestCase
     private static $db;
     private static $dbName;
     private static $migrationPath;
-    private static $changelog;
+    private static $changelog = 'versionning';
 
     public static function setUpBeforeClass() {
         self::$dbName = dirname(__FILE__) . '/test.sqlite';
         unlink(self::$dbName);
-        
-        self::$changelog = 'mychangelog';
 
         self::$db = new PDO('sqlite:' . self::$dbName, '', '');
         self::$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        self::$db->exec("create table " .self::$changelog ."(
+        self::$db->exec("create table " . self::$changelog . " (
                 id numeric(20,0),
                 applied_at character varying(25),
                 version character varying(25),
@@ -27,6 +25,8 @@ class MigrateTest extends PHPUnit_Framework_TestCase
         )");
 
         self::$migrationPath = realpath(dirname(__FILE__)) . "/../migrations";
+
+        exec('rm ' . self::$migrationPath . '/*');
     }
 
     public function setUp() {
@@ -59,9 +59,9 @@ class MigrateTest extends PHPUnit_Framework_TestCase
      * @Test
      */
     public function testGetDbList() {
-        self::$db->query("INSERT INTO " .self::$changelog ."  (id, applied_at, description) VALUES (20100101, '2010-01-01', 'description 1')");
-        self::$db->query("INSERT INTO " .self::$changelog ." (id, applied_at, description) VALUES (20100102, '2010-01-02', 'description 2')");
-        self::$db->query("INSERT INTO " .self::$changelog ." (id, applied_at, description) VALUES (20100103, '2010-01-03', 'description 3')");
+        self::$db->query("INSERT INTO " . self::$changelog . " (id, applied_at, description) VALUES (20100101, '2010-01-01', 'description 1')");
+        self::$db->query("INSERT INTO " . self::$changelog . " (id, applied_at, description) VALUES (20100102, '2010-01-02', 'description 2')");
+        self::$db->query("INSERT INTO " . self::$changelog . " (id, applied_at, description) VALUES (20100103, '2010-01-03', 'description 3')");
 
         $expected = array(
                 '20100101' => new Migration('20100101', '2010-01-01', 'description 1', '20100101_description_1.sql', true),
@@ -74,7 +74,7 @@ class MigrateTest extends PHPUnit_Framework_TestCase
 
         $migrationList = $migrator->getDbList();
 
-        self::$db->query("DELETE FROM " .self::$changelog );
+        self::$db->query("DELETE FROM " . self::$changelog);
 
         $this->assertEquals($expected, $migrationList);
 
@@ -93,10 +93,10 @@ class MigrateTest extends PHPUnit_Framework_TestCase
         touch(self::$migrationPath . "/20100104_description_2.sql");
         touch(self::$migrationPath . "/20100105_description_3.sql");
 
-        self::$db->query("INSERT INTO " .self::$changelog ." (id, applied_at, description) VALUES (20100100, '2009-12-30', 'description 0')");
-        self::$db->query("INSERT INTO " .self::$changelog ." (id, applied_at, description) VALUES (20100103, '2010-01-01', 'description 1')");
-        self::$db->query("INSERT INTO " .self::$changelog ." (id, applied_at, description) VALUES (20100104, '2010-01-02', 'description 2')");
-        self::$db->query("INSERT INTO " .self::$changelog ." (id, applied_at, description) VALUES (20100105, '2010-01-03', 'description 3')");
+        self::$db->query("INSERT INTO " . self::$changelog . " (id, applied_at, description) VALUES (20100100, '2009-12-30', 'description 0')");
+        self::$db->query("INSERT INTO " . self::$changelog . " (id, applied_at, description) VALUES (20100103, '2010-01-01', 'description 1')");
+        self::$db->query("INSERT INTO " . self::$changelog . " (id, applied_at, description) VALUES (20100104, '2010-01-02', 'description 2')");
+        self::$db->query("INSERT INTO " . self::$changelog . " (id, applied_at, description) VALUES (20100105, '2010-01-03', 'description 3')");
 
         $expected = array(
                 '20100100' => new Migration('20100100', '2009-12-30', 'description 0', '20100100_description_0.sql', true),
@@ -111,7 +111,7 @@ class MigrateTest extends PHPUnit_Framework_TestCase
         $migrator->setDb(self::$db);
         $migrationList = $migrator->getMigrationList();
 
-        self::$db->query("DELETE FROM " .self::$changelog );
+        self::$db->query("DELETE FROM " . self::$changelog);
 
         unlink(self::$migrationPath . "/20100101_add_table_1.sql");
         unlink(self::$migrationPath . "/20100102_add_table_2.sql");
@@ -172,6 +172,7 @@ DELETE FROM test WHERE id = $key;
 SQL;
 
             file_put_contents(self::$migrationPath . "/" . $aMigration->getSqlFile(), $sqlUp1);
+
         }
 
 
@@ -500,7 +501,7 @@ SQL;
         $migrator->doUpForce($migrationList[4]->getId());
 
         $status = $migrator->doStatus();
-        print_r($status);
+//        print_r($status);
 
         foreach ($migrationList as $aMigration) {
             /* @var $aMigration Migration */

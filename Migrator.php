@@ -183,6 +183,7 @@ class Migrate {
     private $options = null;
     private $action = null;
     private $version = "";
+    private $changelogTableName;
 
     /**
      * configuration from ini
@@ -190,6 +191,20 @@ class Migrate {
      * @var unknown
      */
     private $config;
+
+    /**
+     * @return mixed
+     */
+    public function getChangelogTableName() {
+        return $this->changelogTableName;
+    }
+
+    /**
+     * @param mixed $changelogTableName
+     */
+    public function setChangelogTableName($changelogTableName) {
+        $this->changelogTableName = $changelogTableName;
+    }
 
     /**
      * @param string $environmentPath
@@ -434,6 +449,7 @@ class Migrate {
 
         $config = parse_ini_file($this->getEnvironementPath() . "/" . $env . ".ini");
         $this->setConfig($config);
+        $this->setChangelogTableName($config['changelog']);
     }
 
     /**
@@ -546,7 +562,7 @@ class Migrate {
      *
      */
     public function getDbList() {
-        $sqlResult = $this->getDb()->query('SELECT * FROM ' .$config['changelog'] .'  ORDER BY id');
+        $sqlResult = $this->getDb()->query('SELECT * FROM ' . $this->getChangelogTableName() . ' ORDER BY id');
 
         $migrationList = array();
         foreach ($sqlResult as $row) {
@@ -644,7 +660,7 @@ class Migrate {
 
         // insert into changelog
         $this->getDb()->exec(
-                "INSERT INTO " .$config['changelog'] ." (id, applied_at, description, version) VALUES ("
+                "INSERT INTO " . $this->getChangelogTableName() . " (id, applied_at, description, version) VALUES ("
                 . $migration->getId() . ", '"
                 . $date . "', '"
                 . $migration->getDescription() . "', '"
@@ -694,7 +710,7 @@ class Migrate {
 
         // insert into changelog
         $this->getDb()->exec(
-                "DELETE FROM " .$config['changelog'] ." WHERE id = " . $migration->getId()
+                "DELETE FROM " . $this->getChangelogTableName() . " WHERE id = " . $migration->getId()
         );
 
         if ($sqlReturnCode != '0') {
