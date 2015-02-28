@@ -16,7 +16,8 @@
         "symfony/console": "~2",
         "symfony/process": "~2.6",
         "symfony/config": "~2.6",
-        "cocur/slugify": "~1.0"
+        "cocur/slugify": "~1.0",
+        "symfony/yaml": "~2.6"
     },
     "require-dev": {
         "phpunit/phpunit": "*"
