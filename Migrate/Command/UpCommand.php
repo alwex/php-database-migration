@@ -8,46 +8,60 @@
 namespace Migrate\Command;
 
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class UpCommand extends AbstractComand {
+class UpCommand extends AbstractEnvCommand {
 
     protected function configure()
     {
         $this
             ->setName('migrate:up')
-            ->setDescription('Saluez quelqu\'un')
+            ->setDescription('Execute all waiting migration up to [to] option if precised')
             ->addArgument(
-                'name',
-                InputArgument::OPTIONAL,
-                'Qui voulez-vous saluez?'
+                'env',
+                InputArgument::REQUIRED,
+                'Environment'
             )
             ->addOption(
-                'yell',
-                null,
-                InputOption::VALUE_NONE,
-                'Si défini, la réponse est affichée en majuscules'
+                'to'
             )
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $name = $input->getArgument('name');
-        if ($name) {
-            $text = 'Salut, '.$name;
+        $this->init($input, $output);
+
+        $toUp = $this->getToUpMigrations();
+
+        if (count($toUp) == 0) {
+
+            $output->writeln("your database is already up to date");
+
         } else {
-            $text = 'Salut';
-        }
 
-        if ($input->getOption('yell')) {
-            $text = strtoupper($text);
-        }
+            $progress = new ProgressBar($output, count($toUp));
 
-        $output->writeln($text);
+            $progress->setFormat('%current%/%max% [%bar%] %percent% % %memory% [%message%]');
+            $progress->setMessage('');
+            $progress->start();
+
+            /* @var $migration \Migrate\Migration */
+            foreach ($toUp as $migration) {
+                $progress->setMessage
+                ($migration->getDescription());
+                $this->getDb()->query($migration->getSqlUp());
+                $this->saveToChangelog($migration);
+                $progress->advance();
+            }
+
+            $progress->finish();
+            $output->writeln("");
+        }
     }
 
 }

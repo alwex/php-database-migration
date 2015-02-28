@@ -8,7 +8,6 @@
 
 namespace Migrate;
 
-
 use Cocur\Slugify\Slugify;
 use Migrate\Utils\ArrayUtil;
 
@@ -19,6 +18,8 @@ class Migration
     private $file;
     private $appliedAt;
     private $version;
+    private $sqlUp;
+    private $sqlDown;
 
     /**
      * @return mixed
@@ -100,7 +101,39 @@ class Migration
         $this->version = $version;
     }
 
-    public static function createFromFile($filename)
+    /**
+     * @return mixed
+     */
+    public function getSqlUp()
+    {
+        return $this->sqlUp;
+    }
+
+    /**
+     * @param mixed $sqlUp
+     */
+    public function setSqlUp($sqlUp)
+    {
+        $this->sqlUp = $sqlUp;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSqlDown()
+    {
+        return $this->sqlDown;
+    }
+
+    /**
+     * @param mixed $sqlDown
+     */
+    public function setSqlDown($sqlDown)
+    {
+        $this->sqlDown = $sqlDown;
+    }
+
+    public static function createFromFile($filename, $migrationDir)
     {
         $data = explode('_', $filename);
 
@@ -109,11 +142,13 @@ class Migration
         $migration->setAppliedAt(null);
         $migration->setVersion(null);
         $migration->setDescription(str_replace('.sql', '', str_replace('-', ' ', $data[1])));
+        $migration->setFile($filename);
+        $migration->load($migrationDir);
 
         return $migration;
     }
 
-    public static function createFromRow(array $data)
+    public static function createFromRow(array $data, $migrationDir)
     {
         $migration = new self();
         $migration->setId(ArrayUtil::get($data, 'id'));
@@ -121,15 +156,32 @@ class Migration
         $migration->setVersion(ArrayUtil::get($data, 'version'));
         $migration->setDescription(ArrayUtil::get($data, 'description'));
 
+        $slugger = new Slugify();
+        $filename = $migration->getId() . '_' . $slugger->slugify($migration->getDescription()) . '.sql';
+        $migration->setFile($filename);
+
+        $migration->load($migrationDir);
+
         return $migration;
     }
 
-    public function toArray() {
+    public function toArray()
+    {
         return array(
             $this->getId(),
             $this->getVersion(),
             $this->getAppliedAt(),
             $this->getDescription()
         );
+    }
+
+    public function load($migrationDir)
+    {
+        @$content = file_get_contents($migrationDir . '/' . $this->getFile());
+        if ($content && strpos($content, '@UNDO') > 0) {
+            $sql = explode('-- @UNDO', $content);
+            $this->setSqlUp($sql[0]);
+            $this->setSqlDown($sql[1]);
+        }
     }
 }

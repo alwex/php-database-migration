@@ -36,27 +36,11 @@ class StatusCommand extends AbstractEnvCommand
     {
         $this->init($input, $output);
 
-        $changelog = $this->getChangelogTable();
-
-        $migrations = array();
-        $result = $this->getDb()->query("SELECT * FROM $changelog ORDER BY id");
-        foreach ($result as $row) {
-            $migration = Migration::createFromRow($row);
-            $migrations[$migration->getId()] = $migration;
-        }
-
-        $fileList = scandir($this->getMigrationDir());
-        $fileList = ArrayUtil::filter($fileList);
-
-        foreach ($fileList as $file) {
-            $migration = Migration::createFromFile($file);
-            $migrations[$migration->getId()] = $migration;
-        }
-
-        ksort($migrations);
 
         $table = new Table($output);
         $table->setHeaders(array('id', 'version', 'applied at', 'description'));
+
+        $migrations = $this->getRemoteAndLocalMigrations();
         /* @var $migration Migration */
         foreach ($migrations as $migration) {
             $table->addRow($migration->toArray());
