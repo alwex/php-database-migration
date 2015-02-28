@@ -6,3 +6,6 @@ clean.sh
 .settings
 .idea
 tests/test.sqlite
+vendor
+.php-database-migration
+.twgit_features_subject
