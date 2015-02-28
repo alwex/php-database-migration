@@ -7,3 +7,4 @@ clean.sh
 .idea
 tests/test.sqlite
 vendor
+.php-database-migration
