@@ -7,11 +7,17 @@
 
 namespace Migrate\Command;
 
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ChoiceQuestion;
+use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\ProcessBuilder;
 
 class AddEnvCommand extends AbstractComand {
 
@@ -19,59 +25,14 @@ class AddEnvCommand extends AbstractComand {
     {
         $this
             ->setName('migrate:addenv')
-            ->setDescription('Initialise your project to work with php db migrate')
+            ->setDescription('Initialise an environment to work with php db migrate')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $drivers = pdo_drivers();
-        $dialog = $this->getHelperSet()->get('dialog');
 
-        $envName = $dialog->ask(
-            $output,
-            "<info>Environment name:</info>\n",
-            '',
-            ['dev', 'test', 'preprod', 'prod']
-        );
-
-        $driver = $dialog->ask(
-            $output,
-            "<info>Please chose your pdo driver:</info>\n<comment>" . str_replace(',', ' , ', str_replace('"', '', json_encode($drivers))) . "</comment>\n",
-            '',
-            $drivers
-        );
-
-        $dbName = $dialog->ask(
-            $output,
-            "<info>database name:</info>\n",
-            ''
-        );
-
-        $dbHost = $dialog->ask(
-            $output,
-            "<info>database host:</info>\n",
-            ''
-        );
-
-        $dbPost = $dialog->ask(
-            $output,
-            "<info>database port:</info>\n",
-            ''
-        );
-
-        $dbUserName = $dialog->ask(
-            $output,
-            "<info>database user name:</info>\n",
-            ''
-        );
-
-        $dbUserPassword = $dialog->ask(
-            $output,
-            "<info>database user password:</info>\n",
-            ''
-        );
-
+        // init directories
         if(! file_exists($this->getMainDir())) {
             mkdir($this->getMainDir());
         }
@@ -84,14 +45,48 @@ class AddEnvCommand extends AbstractComand {
             mkdir($this->getMigrationDir());
         }
 
-        $envConfigFile = $this->getEnvironmentDir() . '/' . $envName . '.ini';
-        if (! file_exists($envConfigFile) && $envName != null) {
-            touch($envConfigFile);
-            $output->writeln("environment $envName added");
-        } else {
-            $output->writeln("<error>environment [$envName] already configured or invalid</error>");
+        $drivers = pdo_drivers();
+        $questions = $this->getHelperSet()->get('question');
+
+        $envQuestion = new Question("Please enter the name of the new environment <info>(default dev)</info>: ", "dev");
+        $envName = $questions->ask($input, $output, $envQuestion );
+
+        $envConfigFile = $this->getEnvironmentDir() . '/' . $envName . '.yml';
+        if (file_exists($envConfigFile)) {
+            throw new \InvalidArgumentException("environment [$envName] is already defined!");
         }
 
+        $driverQuestion = new ChoiceQuestion("Please chose your pdo driver", $drivers);
+        $driver = $questions->ask($input, $output, $driverQuestion);
+
+        $dbNameQuestion = new Question("Please enter the database name (or the database file location): ", "~");
+        $dbName = $questions->ask($input, $output, $dbNameQuestion);
+
+        $dbHostQuestion = new Question("Please enter the database host (if needed): ", "~");
+        $dbHost = $questions->ask($input, $output, $dbHostQuestion);
+
+        $dbPortQuestion = new Question("Please enter the database port (if needed): ", "~");
+        $dbPort = $questions->ask($input, $output, $dbPortQuestion);
+
+        $dbUserNameQuestion = new Question("Please enter the database user name (if needed): ", "~");
+        $dbUserName = $questions->ask($input, $output, $dbUserNameQuestion);
+
+        $dbUserPasswordQuestion = new Question("Please enter the database user password (if needed): ", "~");
+        $dbUserPassword = $questions->ask($input, $output, $dbUserPasswordQuestion);
+
+        $changelogTableQuestion = new Question("Please enter the changelog table <info>(default changelog)</info>: ", "changelog");
+        $changelogTable = $questions->ask($input, $output, $changelogTableQuestion);
+
+        $confTemplate = file_get_contents(__DIR__ . '/../../templates/env.yml');
+        $confTemplate = str_replace('{DRIVER}', $driver, $confTemplate);
+        $confTemplate = str_replace('{HOST}', $dbHost, $confTemplate);
+        $confTemplate = str_replace('{PORT}', $dbPort, $confTemplate);
+        $confTemplate = str_replace('{USERNAME}', $dbUserName, $confTemplate);
+        $confTemplate = str_replace('{PASSWORD}', $dbUserPassword, $confTemplate);
+        $confTemplate = str_replace('{DATABASE}', $dbName, $confTemplate);
+        $confTemplate = str_replace('{CHANGELOG}', $changelogTable, $confTemplate);
+
+        file_put_contents($envConfigFile, $confTemplate);
     }
 
 }
