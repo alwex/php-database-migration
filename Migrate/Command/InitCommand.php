@@ -7,79 +7,45 @@
 
 namespace Migrate\Command;
 
+use Migrate\Utils\ArrayUtil;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class InitCommand extends AbstractComand {
+class InitCommand extends AbstractEnvCommand {
 
     protected function configure()
     {
         $this
             ->setName('migrate:init')
-            ->setDescription('Initialise your project to work with php db migrate')
+            ->setDescription('Create the changelog table on your environment database')
+            ->addArgument(
+                'env',
+                InputArgument::REQUIRED,
+                'Environment'
+            )
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $drivers = \PDO::getAvailableDrivers();
-        $dialog = $this->getHelperSet()->get('dialog');
+        $this->init($input, $output);
 
-        $driver = $dialog->ask(
-            $output,
-            "<info>Please chose your pdo driver:</info>\n<comment>" . str_replace(',', ' , ', str_replace('"', '', json_encode($drivers))) . "</comment>\n",
-            '',
-            $drivers
-        );
+        $changelog = $this->getChangelogTable();
 
-        $dbName = $dialog->ask(
-            $output,
-            "<info>database name:</info>\n",
-            ''
-        );
+        $this->getDb()->exec("
+            CREATE table $changelog
+            (
+                id numeric(20,0),
+                applied_at character varying(25),
+                version character varying(25),
+                description character varying(255)
+            )
+        ");
 
-        $dbHost = $dialog->ask(
-            $output,
-            "<info>database host:</info>\n",
-            ''
-        );
-
-        $dbPost = $dialog->ask(
-            $output,
-            "<info>database port:</info>\n",
-            ''
-        );
-
-        $dbUserName = $dialog->ask(
-            $output,
-            "<info>database user name:</info>\n",
-            ''
-        );
-
-        $dbUserPassword = $dialog->ask(
-            $output,
-            "<info>database user password:</info>\n",
-            ''
-        );
-
-
-
-
-//        $name = $input->getArgument('name');
-//        if ($name) {
-//            $text = 'Salut, '.$name;
-//        } else {
-//            $text = 'Salut';
-//        }
-//
-//        if ($input->getOption('yell')) {
-//            $text = strtoupper($text);
-//        }
-//
-//        $output->writeln($text);
+        $output->writeln("changelog table ($changelog) successfully created");
     }
 
 }

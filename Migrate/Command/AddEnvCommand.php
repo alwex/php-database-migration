@@ -7,19 +7,12 @@
 
 namespace Migrate\Command;
 
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\ProcessBuilder;
 
-class AddEnvCommand extends AbstractComand {
+class AddEnvCommand extends AbstractEnvCommand {
 
     protected function configure()
     {
@@ -77,6 +70,9 @@ class AddEnvCommand extends AbstractComand {
         $changelogTableQuestion = new Question("Please enter the changelog table <info>(default changelog)</info>: ", "changelog");
         $changelogTable = $questions->ask($input, $output, $changelogTableQuestion);
 
+        $defaultEditorQuestion = new Question("Please enter the text editor to use by default <info>(default vim)</info>: ", "vim");
+        $defaultEditor = $questions->ask($input, $output, $defaultEditorQuestion);
+
         $confTemplate = file_get_contents(__DIR__ . '/../../templates/env.yml');
         $confTemplate = str_replace('{DRIVER}', $driver, $confTemplate);
         $confTemplate = str_replace('{HOST}', $dbHost, $confTemplate);
@@ -85,8 +81,8 @@ class AddEnvCommand extends AbstractComand {
         $confTemplate = str_replace('{PASSWORD}', $dbUserPassword, $confTemplate);
         $confTemplate = str_replace('{DATABASE}', $dbName, $confTemplate);
         $confTemplate = str_replace('{CHANGELOG}', $changelogTable, $confTemplate);
+        $confTemplate = str_replace('{EDITOR}', $defaultEditor, $confTemplate);
 
         file_put_contents($envConfigFile, $confTemplate);
     }
-
 }
