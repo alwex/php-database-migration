@@ -27,7 +27,16 @@ class UpCommand extends AbstractEnvCommand {
                 'Environment'
             )
             ->addOption(
-                'to'
+                'to',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Migration will be uped up to this migration id included'
+            )
+            ->addOption(
+                'only',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'If you need to up this migration id only'
             )
         ;
     }
@@ -36,26 +45,24 @@ class UpCommand extends AbstractEnvCommand {
     {
         $this->init($input, $output);
 
-        $toUp = $this->getToUpMigrations();
+        $toExecute = $this->filterMigrationsToExecute($input, $output);
 
-        if (count($toUp) == 0) {
+        if (count($toExecute) == 0) {
 
             $output->writeln("your database is already up to date");
 
         } else {
 
-            $progress = new ProgressBar($output, count($toUp));
+            $progress = new ProgressBar($output, count($toExecute));
 
-            $progress->setFormat('%current%/%max% [%bar%] %percent% % %memory% [%message%]');
+            $progress->setFormat(self::$progressBarFormat);
             $progress->setMessage('');
             $progress->start();
 
             /* @var $migration \Migrate\Migration */
-            foreach ($toUp as $migration) {
-                $progress->setMessage
-                ($migration->getDescription());
-                $this->getDb()->query($migration->getSqlUp());
-                $this->saveToChangelog($migration);
+            foreach ($toExecute as $migration) {
+                $progress->setMessage($migration->getDescription());
+                $this->executeUpMigration($migration);
                 $progress->advance();
             }
 
@@ -63,5 +70,4 @@ class UpCommand extends AbstractEnvCommand {
             $output->writeln("");
         }
     }
-
 }

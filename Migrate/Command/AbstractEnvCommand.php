@@ -18,6 +18,9 @@ use Symfony\Component\Yaml\Yaml;
 
 class AbstractEnvCommand extends AbstractComand
 {
+
+    protected static $progressBarFormat = '%current%/%max% [%bar%] %percent% % %memory% [%message%]';
+
     /**
      * @var \PDO
      */
@@ -159,11 +162,9 @@ class AbstractEnvCommand extends AbstractComand
         $locales = $this->getLocalMigrations();
         $remotes = $this->getRemoteMigrations();
 
-        foreach ($locales as $locale) {
-            unset($remotes[$locale->getId()]);
-        }
-
         ksort($remotes);
+
+        $remotes = array_reverse($remotes, true);
 
         return $remotes;
     }
@@ -182,5 +183,80 @@ class AbstractEnvCommand extends AbstractComand
         if (! $result) {
             throw new \RuntimeException("changelog table has not been initialized");
         }
+    }
+
+    public function removeFromChangelog(Migration $migration)
+    {
+        $sql = "DELETE FROM {$this->getChangelogTable()} WHERE id = {$migration->getId()}";
+        $result = $this->getDb()->exec($sql);
+        if (! $result) {
+            throw new \RuntimeException("Impossible to delete migration from changelog table");
+        }
+    }
+
+    /**
+     * @param Migration $migration
+     */
+    public function executeUpMigration(Migration $migration)
+    {
+        $this->getDb()->query($migration->getSqlUp());
+        $this->saveToChangelog($migration);
+    }
+
+    /**
+     * @param Migration $migration
+     */
+    public function executeDownMigration(Migration $migration)
+    {
+        $this->getDb()->query($migration->getSqlDown());
+        $this->removeFromChangelog($migration);
+    }
+
+    protected function filterMigrationsToExecute(InputInterface $input, OutputInterface $output)
+    {
+
+        $down = false;
+
+        $toExecute = array();
+        if (strpos($this->getName(), 'up') > 0) {
+            $toExecute = $this->getToUpMigrations();
+        } else {
+            $down = true;
+            $toExecute = $this->getToDownMigrations();
+        }
+
+        $only = $input->getOption('only');
+        if ($only != null) {
+            if (! array_key_exists($only, $toExecute)) {
+                throw new \RuntimeException("Impossible to execute migration $only!");
+            }
+            $theMigration = $toExecute[$only];
+            $toExecute = array($theMigration->getId() => $theMigration);
+        }
+
+        $to = $input->getOption('to');
+        if ($to != null) {
+            if (! array_key_exists($to, $toExecute)) {
+                throw new \RuntimeException("Target migration $to does not exists or has already been executed/downed!");
+            }
+
+            $temp = $toExecute;
+            $toExecute = array();
+            foreach ($temp as $migration) {
+                $toExecute[$migration->getId()] = $migration;
+                if ($migration->getId() == $to) {
+                    break;
+                }
+            }
+
+        } else if ($down && count($toExecute) > 1) {
+            // WARNING DOWN SPECIAL TREATMENT
+            // we dont want all the database to be downed because
+            // of a bad command!
+            $theMigration = array_shift($toExecute);
+            $toExecute = array($theMigration->getId() => $theMigration);
+        }
+
+        return $toExecute;
     }
 }

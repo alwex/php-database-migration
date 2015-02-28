@@ -9,45 +9,79 @@ namespace Migrate\Command;
 
 
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\Question;
 
-class DownCommand extends AbstractComand {
+class DownCommand extends AbstractEnvCommand {
 
     protected function configure()
     {
         $this
             ->setName('migrate:down')
-            ->setDescription('Saluez quelqu\'un')
+            ->setDescription('Rollback all waiting migration down to [to] option if precised')
             ->addArgument(
-                'name',
-                InputArgument::OPTIONAL,
-                'Qui voulez-vous saluez?'
+                'env',
+                InputArgument::REQUIRED,
+                'Environment'
             )
             ->addOption(
-                'yell',
+                'to',
                 null,
-                InputOption::VALUE_NONE,
-                'Si défini, la réponse est affichée en majuscules'
+                InputOption::VALUE_REQUIRED,
+                'Migration will be downed to this migration id included'
+            )
+            ->addOption(
+                'only',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'If you need to down this migration id only'
             )
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $name = $input->getArgument('name');
-        if ($name) {
-            $text = 'Salut, '.$name;
+        $this->init($input, $output);
+
+        /* @var $questions QuestionHelper */
+        $questions = $this->getHelperSet()->get('question');
+
+        $areYouSureQuestion = new Question("Are you sure? <info>(yes/no)</info> <comment>[no]</comment>: ", 'no');
+        $areYouSure = $questions->ask($input, $output, $areYouSureQuestion);
+
+        if ($areYouSure == 'yes') {
+
+            $toExecute = $this->filterMigrationsToExecute($input, $output);
+
+            if (count($toExecute) == 0) {
+
+                $output->writeln("your database is already up to date");
+
+            } else {
+
+                $progress = new ProgressBar($output, count($toExecute));
+
+                $progress->setFormat(self::$progressBarFormat);
+                $progress->setMessage('');
+                $progress->start();
+
+                /* @var $migration \Migrate\Migration */
+                foreach ($toExecute as $migration) {
+                    $progress->setMessage($migration->getDescription());
+                    $this->executeDownMigration($migration);
+                    $progress->advance();
+                }
+
+                $progress->finish();
+                $output->writeln("");
+            }
         } else {
-            $text = 'Salut';
+            $output->writeln("<error>Rollback aborted</error>");
         }
-
-        if ($input->getOption('yell')) {
-            $text = strtoupper($text);
-        }
-
-        $output->writeln($text);
     }
 }

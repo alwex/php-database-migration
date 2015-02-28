@@ -39,6 +39,8 @@ class AddEnvCommand extends AbstractEnvCommand {
         }
 
         $drivers = pdo_drivers();
+
+        /* @var $questions QuestionHelper */
         $questions = $this->getHelperSet()->get('question');
 
         $envQuestion = new Question("Please enter the name of the new environment <info>(default dev)</info>: ", "dev");
