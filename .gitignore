@@ -8,3 +8,4 @@ clean.sh
 tests/test.sqlite
 vendor
 .php-database-migration
+.twgit_features_subject
