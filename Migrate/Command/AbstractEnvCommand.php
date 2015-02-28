@@ -154,6 +154,21 @@ class AbstractEnvCommand extends AbstractComand
         return $locales;
     }
 
+    public function getToDownMigrations()
+    {
+        $locales = $this->getLocalMigrations();
+        $remotes = $this->getRemoteMigrations();
+
+        foreach ($locales as $locale) {
+            unset($remotes[$locale->getId()]);
+        }
+
+        ksort($remotes);
+
+        return $remotes;
+    }
+
+
     public function saveToChangelog(Migration $migration)
     {
         $appliedAt = date('Y-m-d H:i:s');
