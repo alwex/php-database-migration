@@ -4,6 +4,28 @@ PhpDbMigration - full PHP database migration tool
 This is a full standalone PHP tool based on symfony console and inspired by the rails database migration tool and MyBatis.
 It merge the functionnality of the two tools and has been desined to be as flexible as possible.
 
+Installing it to your project
+-----------------------------
+Just add it to your composer.json (don't forget to specify your bin directory)
+Warning, all migrate commands must be executed on your root folder like `bin/migrate migrate:command...`
+
+    {
+        "name": "jdoe/testproject",
+        "authors": [
+            {
+                "name": "Jhon DOE",
+                "email": "jdoe@gmail.com"
+            }
+        ],
+        "require": {
+            "php-database-migration/php-database-migration" :"3.3.*"
+        },
+        "config": {
+            "bin-dir": "bin"
+        }
+    }
+
+
 Adding an environment
 ---------------------
 The first thing to do before playing with SQL migrations is to add an environment, let's add the dev one.
