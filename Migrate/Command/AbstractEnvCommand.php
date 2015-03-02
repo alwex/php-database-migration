@@ -19,7 +19,7 @@ use Symfony\Component\Yaml\Yaml;
 class AbstractEnvCommand extends AbstractComand
 {
 
-    protected static $progressBarFormat = '%current%/%max% [%bar%] %percent% % %memory% [%message%]';
+    protected static $progressBarFormat = '%current%/%max% [%bar%] %percent% % [%message%]';
 
     /**
      * @var \PDO

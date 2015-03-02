@@ -30,5 +30,8 @@
     },
     "autoload": {
       "psr-4": {"Migrate\\": "Migrate/"}
+    },
+    "autoload-dev": {
+      "psr-4": { "Migrate\\Test\\": "tests/" }
     }
 }

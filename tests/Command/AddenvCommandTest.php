@@ -12,17 +12,18 @@ use Migrate\Utils\InputStreamUtil;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Tester\CommandTester;
+use Migrate\Test\Command\AbstractCommandTester;
 
-class AddenvCommandTest extends \PHPUnit_Framework_TestCase
+class AddenvCommandTest extends AbstractCommandTester
 {
     public function setUp()
     {
-        exec("rm -rf .php-database-migration");
+        $this->cleanEnv();
     }
 
     public function tearDown()
     {
-        $this->setUp();
+        $this->cleanEnv();
     }
 
     public function testExecute()
