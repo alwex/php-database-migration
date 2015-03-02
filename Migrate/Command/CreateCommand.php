@@ -49,7 +49,9 @@ class CreateCommand extends AbstractEnvCommand {
         file_put_contents($migrationFullPath, $templateFile);
         $output->writeln("<info>$migrationFullPath created</info>");
 
-        system("vim $migrationFullPath  > `tty`");
+        if (!defined('PHPUNIT')) {
+            system("vim $migrationFullPath  > `tty`");
+        }
     }
 
 }

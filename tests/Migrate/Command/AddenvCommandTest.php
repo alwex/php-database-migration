@@ -7,19 +7,22 @@
 
 namespace Migrate\Command;
 
+use Migrate\Enum\Directory;
+use Migrate\Utils\InputStreamUtil;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Console\Helper\DialogHelper;
 
 class AddenvCommandTest extends \PHPUnit_Framework_TestCase
 {
-    protected function getInputStream($input)
+    public function setUp()
     {
-        $stream = fopen('php://memory', 'r+', false);
-        fputs($stream, $input);
-        rewind($stream);
+        exec("rm -rf .php-database-migration");
+    }
 
-        return $stream;
+    public function tearDown()
+    {
+        $this->setUp();
     }
 
     public function testExecute()
@@ -30,12 +33,33 @@ class AddenvCommandTest extends \PHPUnit_Framework_TestCase
         $command = $application->find('migrate:addenv');
         $commandTester = new CommandTester($command);
 
-        /* @var $dialog DialogHelper */
-        $dialog = $command->getHelper('dialog');
-        $dialog->setInputStream($this->getInputStream("a"));
+        /* @var $question QuestionHelper */
+        $question = $command->getHelper('question');
+        $question->setInputStream(InputStreamUtil::type("testing\n1\nmigrate_test\nlocalhost\n5432\naguidet\naguidet\nchangelog\nvim\n"));
 
         $commandTester->execute(array('command' => $command->getName()));
 
-//        var_dump($commandTester->getDisplay());
+        $expected = "Please enter the name of the new environment (default dev): Please chose your pdo driver\n  [0] pgsql\n  [1] sqlite\n > Please enter the database name (or the database file location): Please enter the database host (if needed): Please enter the database port (if needed): Please enter the database user name (if needed): Please enter the database user password (if needed): Please enter the changelog table (default changelog): Please enter the text editor to use by default (default vim): ";
+        $this->assertEquals($expected, $commandTester->getDisplay());
+
+        $envDir = Directory::getEnvPath();
+
+        $expected = <<<EXPECTED
+connection:
+    host:     localhost
+    driver:   sqlite
+    port:     5432
+    username: aguidet
+    password: aguidet
+    database: migrate_test
+
+changelog: changelog
+default_editor: vim
+EXPECTED;
+
+        $fileContent = file_get_contents($envDir . '/testing.yml');
+
+        $this->assertEquals($expected, $fileContent);
     }
+
 }
