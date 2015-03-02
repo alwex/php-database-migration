@@ -98,6 +98,7 @@ class AbstractEnvCommand extends AbstractComand
         $fileList = scandir($this->getMigrationDir());
         $fileList = ArrayUtil::filter($fileList);
 
+        $migrations = array();
         foreach ($fileList as $file) {
             $migration = Migration::createFromFile($file, $this->getMigrationDir());
             $migrations[$migration->getId()] = $migration;
