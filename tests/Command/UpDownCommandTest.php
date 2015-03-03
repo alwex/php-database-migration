@@ -19,11 +19,22 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class UpDownCommandTest extends AbstractCommandTester
 {
+    public static $application;
+
     public function setUp()
     {
         $this->cleanEnv();
         $this->createEnv();
         $this->initEnv();
+
+        $this->createMigration('0', "CREATE TABLE test (id INTEGER, thevalue TEXT);",   "DROP TABLE test;");
+        $this->createMigration('1', "INSERT INTO test VALUES (1, 'one');",              "DELETE FROM test WHERE id = 1;");
+        $this->createMigration('2', "INSERT INTO test VALUES (2, 'two');",              "DELETE FROM test WHERE id = 2;");
+
+        self::$application = new Application();
+        self::$application->add(new UpCommand());
+        self::$application->add(new DownCommand());
+        self::$application->add(new StatusCommand());
     }
 
     public function tearDown()
@@ -33,14 +44,8 @@ class UpDownCommandTest extends AbstractCommandTester
 
     public function testUpAllPendingMigrations()
     {
-        $this->createMigration('0', "CREATE TABLE test (id INTEGER, thevalue TEXT);",   "DROP TABLE test;");
-        $this->createMigration('1', "INSERT INTO test VALUES (1, 'one');",              "DROP TABLE test;");
-        $this->createMigration('2', "INSERT INTO test VALUES (2, 'two');",              "DROP TABLE test;");
 
-        $application = new Application();
-        $application->add(new UpCommand());
-
-        $command = $application->find('migrate:up');
+        $command = self::$application->find('migrate:up');
         $commandTester = new CommandTester($command);
 
         $commandTester->execute(array(
@@ -57,20 +62,12 @@ connected
 
 EXPECTED;
 
-        $this->assertEquals($commandTester->getDisplay(), $expected);
+        $this->assertEquals($expected, $commandTester->getDisplay());
     }
 
     public function testDownLastMigration()
     {
-        $this->createMigration('0', "CREATE TABLE test (id INTEGER, thevalue TEXT);",   "DROP TABLE test;");
-        $this->createMigration('1', "INSERT INTO test VALUES (1, 'one');",              "DROP TABLE test;");
-        $this->createMigration('2', "INSERT INTO test VALUES (2, 'two');",              "DROP TABLE test;");
-
-        $application = new Application();
-        $application->add(new UpCommand());
-        $application->add(new DownCommand());
-
-        $command = $application->find('migrate:up');
+        $command = self::$application->find('migrate:up');
         $commandTester = new CommandTester($command);
 
         $commandTester->execute(array(
@@ -80,7 +77,7 @@ EXPECTED;
 
 
 
-        $command = $application->find('migrate:down');
+        $command = self::$application->find('migrate:down');
         $commandTester = new CommandTester($command);
 
         /* @var $question QuestionHelper */
@@ -104,15 +101,7 @@ EXPECTED;
 
     public function testUpOnly()
     {
-        $this->createMigration('0', "CREATE TABLE test (id INTEGER, thevalue TEXT);",   "DROP TABLE test;");
-        $this->createMigration('1', "INSERT INTO test VALUES (1, 'one');",              "DROP TABLE test;");
-        $this->createMigration('2', "INSERT INTO test VALUES (2, 'two');",              "DROP TABLE test;");
-
-        $application = new Application();
-        $application->add(new UpCommand());
-        $application->add(new StatusCommand());
-
-        $command = $application->find('migrate:up');
+        $command = self::$application->find('migrate:up');
         $commandTester = new CommandTester($command);
 
         $commandTester->execute(array(
@@ -130,15 +119,16 @@ EXPECTED;
 
         $this->assertEquals($expected, $commandTester->getDisplay());
 
-        $command = $application->find('migrate:status');
+        $command = self::$application->find('migrate:status');
         $commandTester = new CommandTester($command);
+
+        $currentDate = date('Y-m-d H:i:s');
 
         $commandTester->execute(array(
             'command' => $command->getName(),
             'env' => 'testing'
         ));
 
-        $currentDate = date('Y-m-d H:i:s');
 
         $expected =<<<EXPECTED
 connected
@@ -147,6 +137,170 @@ connected
 +----+---------+---------------------+-------------+
 | 0  |         |                     | migration   |
 | 1  |         | $currentDate | migration   |
+| 2  |         |                     | migration   |
++----+---------+---------------------+-------------+
+
+EXPECTED;
+
+        $this->assertEquals($expected, $commandTester->getDisplay());
+    }
+
+    public function testDownOnly()
+    {
+        $command = self::$application->find('migrate:up');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute(array(
+            'command' => $command->getName(),
+            'env' => 'testing'
+        ));
+
+        $command = self::$application->find('migrate:down');
+        $commandTester = new CommandTester($command);
+
+        /* @var $question QuestionHelper */
+        $question = $command->getHelper('question');
+        $question->setInputStream(InputStreamUtil::type("yes\n"));
+
+        $commandTester->execute(array(
+            'command' => $command->getName(),
+            'env' => 'testing',
+            '--only' => '1'
+        ));
+
+        $expected =<<<EXPECTED
+connected
+Are you sure? (yes/no) [no]: 0/1 [>---------------------------] 0 % []
+1/1 [============================] 100 % [migration]
+
+EXPECTED;
+
+        $this->assertEquals($expected, $commandTester->getDisplay());
+
+        $command = self::$application->find('migrate:status');
+        $commandTester = new CommandTester($command);
+
+        $currentDate = date('Y-m-d H:i:s');
+
+        $commandTester->execute(array(
+            'command' => $command->getName(),
+            'env' => 'testing'
+        ));
+
+        $expected =<<<EXPECTED
+connected
++----+---------+---------------------+-------------+
+| id | version | applied at          | description |
++----+---------+---------------------+-------------+
+| 0  |         | $currentDate | migration   |
+| 1  |         |                     | migration   |
+| 2  |         | $currentDate | migration   |
++----+---------+---------------------+-------------+
+
+EXPECTED;
+
+        $this->assertEquals($expected, $commandTester->getDisplay());
+
+    }
+
+    public function testUpTo()
+    {
+        $command = self::$application->find('migrate:up');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute(array(
+            'command' => $command->getName(),
+            'env' => 'testing',
+            '--to' => '1'
+        ));
+
+        $expected =<<<EXPECTED
+connected
+0/2 [>---------------------------] 0 % []
+1/2 [==============>-------------] 50 % [migration]
+2/2 [============================] 100 % [migration]
+
+EXPECTED;
+
+        $this->assertEquals($expected, $commandTester->getDisplay());
+
+        $command = self::$application->find('migrate:status');
+        $commandTester = new CommandTester($command);
+
+        $currentDate = date('Y-m-d H:i:s');
+
+        $commandTester->execute(array(
+            'command' => $command->getName(),
+            'env' => 'testing'
+        ));
+
+
+        $expected =<<<EXPECTED
+connected
++----+---------+---------------------+-------------+
+| id | version | applied at          | description |
++----+---------+---------------------+-------------+
+| 0  |         | $currentDate | migration   |
+| 1  |         | $currentDate | migration   |
+| 2  |         |                     | migration   |
++----+---------+---------------------+-------------+
+
+EXPECTED;
+
+        $this->assertEquals($expected, $commandTester->getDisplay());
+    }
+
+    public function testDownTo()
+    {
+        $command = self::$application->find('migrate:up');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute(array(
+            'command' => $command->getName(),
+            'env' => 'testing',
+        ));
+
+        $command = self::$application->find('migrate:down');
+        $commandTester = new CommandTester($command);
+
+        /* @var $question QuestionHelper */
+        $question = $command->getHelper('question');
+        $question->setInputStream(InputStreamUtil::type("yes\n"));
+
+        $commandTester->execute(array(
+            'command' => $command->getName(),
+            'env' => 'testing',
+            '--to' => '1'
+        ));
+
+        $expected =<<<EXPECTED
+connected
+Are you sure? (yes/no) [no]: 0/2 [>---------------------------] 0 % []
+1/2 [==============>-------------] 50 % [migration]
+2/2 [============================] 100 % [migration]
+
+EXPECTED;
+
+        $this->assertEquals($expected, $commandTester->getDisplay());
+
+        $command = self::$application->find('migrate:status');
+        $commandTester = new CommandTester($command);
+
+        $currentDate = date('Y-m-d H:i:s');
+
+        $commandTester->execute(array(
+            'command' => $command->getName(),
+            'env' => 'testing'
+        ));
+
+
+        $expected =<<<EXPECTED
+connected
++----+---------+---------------------+-------------+
+| id | version | applied at          | description |
++----+---------+---------------------+-------------+
+| 0  |         | $currentDate | migration   |
+| 1  |         |                     | migration   |
 | 2  |         |                     | migration   |
 +----+---------+---------------------+-------------+
 
