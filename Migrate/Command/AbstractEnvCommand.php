@@ -19,7 +19,7 @@ use Symfony\Component\Yaml\Yaml;
 class AbstractEnvCommand extends AbstractComand
 {
 
-    protected static $progressBarFormat = '%current%/%max% [%bar%] %percent% % %memory% [%message%]';
+    protected static $progressBarFormat = '%current%/%max% [%bar%] %percent% % [%message%]';
 
     /**
      * @var \PDO
@@ -76,10 +76,14 @@ class AbstractEnvCommand extends AbstractComand
         $password = ArrayUtil::get($conf['connection'], 'password');
 
         $uri = $driver;
-        $uri .= ($dbname == null) ?: ":dbname=$dbname";
-        $uri .= ($host == null) ?: ";host=$host";
-        $uri .= ($port == null) ?: ";port=$port";
 
+        if ($driver == 'sqlite') {
+            $uri .= ":$dbname";
+        }  else {
+            $uri .= ($dbname == null) ?: ":dbname=$dbname";
+            $uri .= ($host == null) ?: ";host=$host";
+            $uri .= ($port == null) ?: ";port=$port";
+        }
         $this->db = new \PDO(
             $uri,
             $username,
@@ -98,6 +102,7 @@ class AbstractEnvCommand extends AbstractComand
         $fileList = scandir($this->getMigrationDir());
         $fileList = ArrayUtil::filter($fileList);
 
+        $migrations = array();
         foreach ($fileList as $file) {
             $migration = Migration::createFromFile($file, $this->getMigrationDir());
             $migrations[$migration->getId()] = $migration;
