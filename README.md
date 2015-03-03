@@ -1,48 +1,67 @@
 PhpDbMigration - full PHP database migration tool
 =================================================
 
-This is a full standalone PHP tool inspired by the rails database migration tool and MyBatis.
+This is a full standalone PHP tool based on symfony console and inspired by the rails database migration tool and MyBatis.
 It merge the functionnality of the two tools and has been desined to be as flexible as possible.
+
+Installing it to your project
+-----------------------------
+Just add it to your composer.json (don't forget to specify your bin directory)
+Warning, all migrate commands must be executed on your root folder like `bin/migrate migrate:command...`
+
+    {
+        "name": "jdoe/testproject",
+        "authors": [
+            {
+                "name": "Jhon DOE",
+                "email": "jdoe@gmail.com"
+            }
+        ],
+        "require": {
+            "php-database-migration/php-database-migration" :"3.4.*"
+        },
+        "config": {
+            "bin-dir": "bin"
+        }
+    }
+
+
+Adding an environment
+---------------------
+The first thing to do before playing with SQL migrations is to add an environment, let's add the dev one.
+
+![alt tag](http://tikotepadventure.com/files/php-database-migration/addenv.gif)
 
 Initialization
 --------------
+Once the environment is added, you have to initialize it (create the changelog table on the good database) 
 
-The first time the tool is run, it needs a first initialization like the following:
+![alt tag](http://tikotepadventure.com/files/php-database-migration/init.gif)
 
-    ./migrate --init --driver=<driver> --database=<database> --host=<host> --login=<db_login> --password=<db_password> --changelog=<changelog_table_name>
+Create a migration
+------------------
+It is time to create our first migration file.
 
-Example:
+![alt tag](http://tikotepadventure.com/files/php-database-migration/create.gif)
 
-    ./migrate --init --driver=pgsql --database=php_migration_test --host=localhost --login=my_login --password=my_password --changelog=changelog
+Migrations file are like this
 
-wich will create the following directories/files
+    --// add table users
+    -- Migration SQL that makes the change goes here.
+    create table users (id integer, name text);
+    -- @UNDO
+    -- SQL to undo the change goes here.
+    drop table users;
 
-    ./environments
-         |----development.ini
-         |----preproduction.ini
-         `----production.ini
+Up and down
+------------------
+You can now up all the pending migrations. If you decided to down a migration, the last one will be downed alone to prevent from mistake. You will be asked to confirm the downgrade of your database before runing the real SQL script. 
+![alt tag](http://tikotepadventure.com/files/php-database-migration/status.gif)
 
-    ./migrations
+For developement purpose, it is also possible to up a single migration without taking care of the other ones.
 
-just edit/change the environment ini files in order to match with your database access.
+![alt tag](http://tikotepadventure.com/files/php-database-migration/uponly.gif)
 
-Usage
------
+Same thing for down
 
-    Usage: ./migrate command [parameters] [--env=<environment>]
-    
-    Commands:
-      --env=<environment>       Environment to configure. Default environment is 'dev'.
-      --generate <description>  Creates a new migration with the provided description.
-      --up                      Run unapplied migrations, ALL by default.
-      --up=<version>            Run unapplied migrations up to version (included).
-      --down                    Undoes migrations applied to the database. ONE by default.
-      --down=<version>          Undoes migrations applied to the database. Down to version (included).
-      --force                   Run or undoes only specified migration (not recommended).
-      --transactional           Rollback all applied migration up or down on error.
-      --status                  Show migrations status (applied, unapplied ect...).
-
-    Examples:
-    ./migrate [--generate <migration_name>]
-    ./migrate [--up | --up=<version> | --down | --down=<version>] [--transactional] [--force] [--env=<environment>]
-    ./migrate [--status] [--env=<environment>]
+![alt tag](http://tikotepadventure.com/files/php-database-migration/downonly.gif)
