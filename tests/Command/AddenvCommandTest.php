@@ -34,13 +34,21 @@ class AddenvCommandTest extends AbstractCommandTester
         $command = $application->find('migrate:addenv');
         $commandTester = new CommandTester($command);
 
+        $pdoDrivers = pdo_drivers();
+        $driverKey = array_search('sqlite', $pdoDrivers);
+
+        $driverSelect = '';
+        foreach ($pdoDrivers as $key => $driver) {
+            $driverSelect .= "  [$key] $driver\n";
+        }
+
         /* @var $question QuestionHelper */
         $question = $command->getHelper('question');
-        $question->setInputStream(InputStreamUtil::type("testing\n1\nmigrate_test\nlocalhost\n5432\naguidet\naguidet\nchangelog\nvim\n"));
+        $question->setInputStream(InputStreamUtil::type("testing\n$driverKey\nmigrate_test\nlocalhost\n5432\naguidet\naguidet\nchangelog\nvim\n"));
 
         $commandTester->execute(array('command' => $command->getName()));
 
-        $expected = "Please enter the name of the new environment (default dev): Please chose your pdo driver\n  [0] pgsql\n  [1] sqlite\n > Please enter the database name (or the database file location): Please enter the database host (if needed): Please enter the database port (if needed): Please enter the database user name (if needed): Please enter the database user password (if needed): Please enter the changelog table (default changelog): Please enter the text editor to use by default (default vim): ";
+        $expected = "Please enter the name of the new environment (default dev): Please chose your pdo driver\n$driverSelect > Please enter the database name (or the database file location): Please enter the database host (if needed): Please enter the database port (if needed): Please enter the database user name (if needed): Please enter the database user password (if needed): Please enter the changelog table (default changelog): Please enter the text editor to use by default (default vim): ";
         $this->assertEquals($expected, $commandTester->getDisplay());
 
         $envDir = Directory::getEnvPath();

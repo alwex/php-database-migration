@@ -42,9 +42,12 @@ class AbstractCommandTester extends \PHPUnit_Framework_TestCase
         $command = $application->find('migrate:addenv');
         $commandTester = new CommandTester($command);
 
+        $pdoDrivers = pdo_drivers();
+        $driverKey = array_search('sqlite', $pdoDrivers);
+
         /* @var $question QuestionHelper */
         $question = $command->getHelper('question');
-        $question->setInputStream(InputStreamUtil::type("testing\n1\ntest.sqlite\n\n\n\n\nchangelog\nvim\n"));
+        $question->setInputStream(InputStreamUtil::type("testing\n$driverKey\ntest.sqlite\n\n\n\n\nchangelog\nvim\n"));
 
         $commandTester->execute(array('command' => $command->getName()));
     }
