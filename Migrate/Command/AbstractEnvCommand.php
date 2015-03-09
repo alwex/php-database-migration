@@ -11,6 +11,7 @@ namespace Migrate\Command;
 
 use Migrate\Migration;
 use Migrate\Utils\ArrayUtil;
+use SebastianBergmann\GlobalState\RuntimeException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -204,8 +205,22 @@ class AbstractEnvCommand extends AbstractComand
      */
     public function executeUpMigration(Migration $migration)
     {
-        $this->getDb()->query($migration->getSqlUp());
+        $this->getDb()->beginTransaction();
+        $result = $this->getDb()->query($migration->getSqlUp());
+
+        if ($result === false) {
+            // error while executing the migration
+            $errorInfo = "";
+            $errorInfos = $this->getDb()->errorInfo();
+            foreach ($errorInfos as $line) {
+                $errorInfo .= "\n$line";
+            }
+            $this->getDb()->rollBack();
+            throw new \RuntimeException("migration error, some SQL may be wrong\n\nid: {$migration->getId()}\nfile: {$migration->getFile()}\n" . $errorInfo);
+        }
+
         $this->saveToChangelog($migration);
+        $this->getDb()->commit();
     }
 
     /**
@@ -213,8 +228,21 @@ class AbstractEnvCommand extends AbstractComand
      */
     public function executeDownMigration(Migration $migration)
     {
-        $this->getDb()->query($migration->getSqlDown());
+        $this->getDb()->beginTransaction();
+        $result = $this->getDb()->query($migration->getSqlDown());
+
+        if ($result === false) {
+            // error while executing the migration
+            $errorInfo = "";
+            $errorInfos = $this->getDb()->errorInfo();
+            foreach ($errorInfos as $line) {
+                $errorInfo .= "\n$line";
+            }
+            $this->getDb()->rollBack();
+            throw new \RuntimeException("migration error, some SQL may be wrong\n\nid: {$migration->getId()}\nfile: {$migration->getFile()}\n" . $errorInfo);
+        }
         $this->removeFromChangelog($migration);
+        $this->getDb()->commit();
     }
 
     protected function filterMigrationsToExecute(InputInterface $input, OutputInterface $output)

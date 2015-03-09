@@ -28,7 +28,7 @@ class UpDownCommandTest extends AbstractCommandTester
         $this->initEnv();
 
         $this->createMigration('0', "CREATE TABLE test (id INTEGER, thevalue TEXT);",   "DROP TABLE test;");
-        $this->createMigration('1', "INSERT INTO test VALUES (1, 'one');",              "DELETE FROM test WHERE id = 1;");
+        $this->createMigration('1', "SELECT 1",                                         "DELETE FROM test WHERE id = 1;");
         $this->createMigration('2', "INSERT INTO test VALUES (2, 'two');",              "DELETE FROM test WHERE id = 2;");
 
         self::$application = new Application();
@@ -40,6 +40,50 @@ class UpDownCommandTest extends AbstractCommandTester
     public function tearDown()
     {
         $this->cleanEnv();
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testUpMigrationWithError()
+    {
+        $this->createMigration('3', "SELECT ;",   "SELECT ;");
+        $command = self::$application->find('migrate:up');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute(array(
+            'command' => $command->getName(),
+            'env' => 'testing'
+        ));
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testDownMigrationWithError()
+    {
+        $this->createMigration('3', "SELECT 1;",   "SELECT ;");
+
+
+        $command = self::$application->find('migrate:up');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute(array(
+            'command' => $command->getName(),
+            'env' => 'testing'
+        ));
+
+        $command = self::$application->find('migrate:down');
+        $commandTester = new CommandTester($command);
+
+        /* @var $question QuestionHelper */
+        $question = $command->getHelper('question');
+        $question->setInputStream(InputStreamUtil::type("yes\n"));
+
+        $commandTester->execute(array(
+            'command' => $command->getName(),
+            'env' => 'testing'
+        ));
     }
 
     public function testUpAllPendingMigrations()
