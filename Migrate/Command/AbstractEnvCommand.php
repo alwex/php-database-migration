@@ -206,7 +206,7 @@ class AbstractEnvCommand extends AbstractComand
     public function executeUpMigration(Migration $migration)
     {
         $this->getDb()->beginTransaction();
-        $result = $this->getDb()->query($migration->getSqlUp());
+        $result = $this->getDb()->exec($migration->getSqlUp());
 
         if ($result === false) {
             // error while executing the migration
@@ -229,7 +229,7 @@ class AbstractEnvCommand extends AbstractComand
     public function executeDownMigration(Migration $migration)
     {
         $this->getDb()->beginTransaction();
-        $result = $this->getDb()->query($migration->getSqlDown());
+        $result = $this->getDb()->exec($migration->getSqlDown());
 
         if ($result === false) {
             // error while executing the migration
