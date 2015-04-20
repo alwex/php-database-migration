@@ -53,6 +53,13 @@ class AbstractEnvCommand extends AbstractComand
         return ArrayUtil::get($this->getConfig(), 'changelog');
     }
 
+    protected function checkEnv()
+    {
+        if (!file_exists(getcwd() . '/.php-database-migration/environments')) {
+            throw new \RuntimeException("you are not in an initialized php-database-migration directory");
+        }
+    }
+
     protected function init(InputInterface $input, OutputInterface $output, $env = null)
     {
         $configDirectory = array(getcwd() . '/.php-database-migration/environments');

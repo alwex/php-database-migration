@@ -28,6 +28,8 @@ class CreateCommand extends AbstractEnvCommand {
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->checkEnv();
+
         /* @var $questions QuestionHelper */
         $questions = $this->getHelperSet()->get('question');
 

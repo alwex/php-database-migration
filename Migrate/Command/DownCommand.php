@@ -46,6 +46,8 @@ class DownCommand extends AbstractEnvCommand {
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->checkEnv();
+
         $this->init($input, $output);
 
         /* @var $questions QuestionHelper */
