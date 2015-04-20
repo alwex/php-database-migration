@@ -352,4 +352,56 @@ EXPECTED;
 
         $this->assertEquals($expected, $commandTester->getDisplay());
     }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage you are not in an initialized php-database-migration directory
+     */
+    public function testUpInANotInitializedDirectory()
+    {
+        $this->cleanEnv();
+
+        $command = self::$application->find('migrate:up');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute(array(
+            'command' => $command->getName(),
+            'env' => 'testing',
+        ));
+
+        $command = self::$application->find('migrate:down');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute(array(
+            'command' => $command->getName(),
+            'env' => 'testing',
+            '--to' => '1'
+        ));
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage you are not in an initialized php-database-migration directory
+     */
+    public function testDownInANotInitializedDirectory()
+    {
+        $this->cleanEnv();
+
+        $command = self::$application->find('migrate:down');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute(array(
+            'command' => $command->getName(),
+            'env' => 'testing',
+        ));
+
+        $command = self::$application->find('migrate:down');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute(array(
+            'command' => $command->getName(),
+            'env' => 'testing',
+            '--to' => '1'
+        ));
+    }
 }
