@@ -21,9 +21,6 @@ class Migration
     private $sqlUp;
     private $sqlDown;
 
-    const SQL_UP = 'SQL_UP';
-    const SQL_DOWN = 'SQL_DOWN';
-
     /**
      * @return mixed
      */
