@@ -21,6 +21,9 @@ class Migration
     private $sqlUp;
     private $sqlDown;
 
+    const SQL_UP = 'SQL_UP';
+    const SQL_DOWN = 'SQL_DOWN';
+
     /**
      * @return mixed
      */
@@ -117,6 +120,8 @@ class Migration
         $this->sqlUp = $sqlUp;
     }
 
+
+
     /**
      * @return mixed
      */
@@ -180,8 +185,37 @@ class Migration
         @$content = file_get_contents($migrationDir . '/' . $this->getFile());
         if ($content && strpos($content, '@UNDO') > 0) {
             $sql = explode('-- @UNDO', $content);
-            $this->setSqlUp($sql[0]);
-            $this->setSqlDown($sql[1]);
+            $this->setSqlUp($this->parseSQLFile($migrationDir, $sql[0]));
+            $this->setSqlDown($this->parseSQLFile($migrationDir, $sql[1]));
+        }
+    }
+
+    public function parseSQLFile($migrationDir, $content = null, $sqlFile = null) {
+        if( $sqlFile != null ) {
+            @$content = file_get_contents($migrationDir . '/' . $sqlFile);
+        }
+        if($content != null) {
+            if( strpos($content, '-- @FILE') > 0 ) {
+                $buffer = '';
+                $isFile = false;
+                $lines = explode("\n", $content);
+                foreach($lines as $line) {
+                    if( strpos($line, '-- @FILE') !== false ) {
+                        $isFile = true;
+                        continue;
+                    }
+                    if( $isFile ) {
+                        $filename = trim($line);
+                        $buffer .= PHP_EOL . $this->parseSQLFile($migrationDir, null, $filename);
+                        $isFile = false;
+                        continue;
+                    }
+                    $buffer .= "\n" . $line;
+                }
+                return $buffer;
+            } else {
+                return $content;
+            }
         }
     }
 }

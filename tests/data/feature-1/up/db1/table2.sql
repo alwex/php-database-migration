@@ -1,0 +1,1 @@
+update db1.table2 set foo = 'bar';
