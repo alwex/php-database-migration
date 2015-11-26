@@ -187,12 +187,16 @@ class Migration
         }
     }
 
-    public function parseSQLFile($migrationDir, $content = null, $sqlFile = null) {
+    public function parseSQLFile($migrationDir, $content = null, $sqlFile = null, $nestingLevel = 1) {
+        if($nestingLevel > 5) {
+            // Do not allow more than 5 nesting level
+            throw new \RuntimeException(sprintf('Local migration "%s" is invalid : the "-- @FILE" annotation does not support more than 5 nesting level !', $this->getDescription()));
+        }
         if( $sqlFile != null ) {
             @$content = file_get_contents($migrationDir . '/' . $sqlFile);
         }
         if($content != null) {
-            if( strpos($content, '-- @FILE') > 0 ) {
+            if( strpos($content, '-- @FILE') !== false ) {
                 $buffer = '';
                 $isFile = false;
                 $lines = explode("\n", $content);
@@ -203,11 +207,11 @@ class Migration
                     }
                     if( $isFile ) {
                         $filename = trim($line);
-                        $buffer .= PHP_EOL . $this->parseSQLFile($migrationDir, null, $filename);
+                        $buffer .= PHP_EOL . $this->parseSQLFile($migrationDir, null, $filename, ++$nestingLevel);
                         $isFile = false;
                         continue;
                     }
-                    $buffer .= "\n" . $line;
+                    $buffer .= PHP_EOL . $line;
                 }
                 return $buffer;
             } else {

@@ -49,4 +49,15 @@ EXPECTED;
         $this->assertEquals($expected, $this->migration->getSqlDown() );
 
     }
+
+    /**
+     * @expectedException        Exception
+     * @expectedExceptionMessageRegExp #^.* the "-- @FILE" annotation does not support more than 5 nesting level !#
+     */
+    public function testInfiniteLoop()
+    {
+
+        $this->migration->setFile('rollout.sql');
+        $this->migration->load(__DIR__ . '/data/feature-infinite-loop/');
+    }
 }
