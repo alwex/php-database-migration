@@ -1,5 +1,5 @@
 {
-    "name": "php-database-migration/php-database-migration",
+    "name": "alwex/php-database-migration",
     "description": "rake and mybatis SQL migration tool",
     "homepage": "https://github.com/tellim/php-database-migration",
     "keywords": ["rake", "mybatis", "migration", "sql"],
