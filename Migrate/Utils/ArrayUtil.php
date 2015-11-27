@@ -15,17 +15,13 @@ class ArrayUtil {
     }
 
     public static function filter(array $array) {
-        if (isset($array['.'])) {
-            unset($array['.']);
+        $files = array();
+        foreach ($array as $file) {
+            if(!is_dir($file)){
+                $files[] = $file;
+            }
         }
 
-        if (isset($array['..'])) {
-            unset($array['..']);
-        }
-
-        unset($array[0]);
-        unset($array[1]);
-
-        return $array;
+        return $files;
     }
 }
