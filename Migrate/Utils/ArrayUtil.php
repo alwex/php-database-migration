@@ -14,10 +14,10 @@ class ArrayUtil {
         return (array_key_exists($key, $array)) ? $array[$key] : null;
     }
 
-    public static function filter(array $array) {
+    public static function filter($dir, array $array) {
         $files = array();
         foreach ($array as $file) {
-            if(!is_dir($file)){
+            if(!is_dir(sprintf('%s/%s', $dir, $file))){
                 $files[] = $file;
             }
         }
