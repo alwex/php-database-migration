@@ -207,7 +207,7 @@ class Migration
                     }
                     if( $isFile ) {
                         $filename = trim($line);
-                        $buffer .= PHP_EOL . $this->parseSQLFile($migrationDir, null, $filename, ++$nestingLevel);
+                        $buffer .= PHP_EOL . $this->parseSQLFile($migrationDir, null, $filename, ($nestingLevel+1));
                         $isFile = false;
                         continue;
                     }
