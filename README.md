@@ -82,21 +82,34 @@ Create a migration
 It is time to create our first migration file.
 
 ```
-$ ./bin/migrate migrate:create [env]
+$ ./bin/migrate migrate:create
 ```
 
 Migrations file are like this
 
-    --// add table users
+    -- // add table users
     -- Migration SQL that makes the change goes here.
     create table users (id integer, name text);
     -- @UNDO
     -- SQL to undo the change goes here.
     drop table users;
 
+List migrations
+------------------
+View all available migrations and their status.
+
+```
+$ ./bin/migrate migrate:status [env]
++----------------+---------+------------------+--------------------+
+| id             | version | applied at       | description        |
++----------------+---------+------------------+--------------------+
+| 14679010838251 |         |                  | create table users |
++----------------+---------+------------------+--------------------+
+```
+
 Up and down
 -----------
-You can now up all the pending migrations. If you decided to down a migration, the last one will be downed alone to prevent from mistake. You will be asked to confirm the downgrade of your database before runing the real SQL script. 
+You can now up all the pending migrations. If you decided to down a migration, the last one will be downed alone to prevent from mistake. You will be asked to confirm the downgrade of your database before runing the real SQL script.
 
 ```
 $ ./bin/migrate migrate:up [env]
@@ -105,11 +118,24 @@ $ ./bin/migrate migrate:up [env]
 For developement purpose, it is also possible to up a single migration without taking care of the other ones:
 
 ```
-$ ./bin/migrate migrate:up [env] --only=[migration]
+$ ./bin/migrate migrate:up [env] --only=[migrationid]
+```
+
+or migrate to specific migration (it will run all migrations including specified migration)
+
+```
+$ ./bin/migrate migrate:up [env] --to=[migrationid]
 ```
 
 Same thing for down:
 
 ```
-$ ./bin/migrate migrate:down [env] --only=[migration]
+$ ./bin/migrate migrate:down [env] --only=[migrationid]
+```
+
+or
+
+
+```
+$ ./bin/migrate migrate:down [env] --to=[migrationid]
 ```

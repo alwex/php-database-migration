@@ -1,4 +1,4 @@
---// {DESCRIPTION}
+-- // {DESCRIPTION}
 -- Migration SQL that makes the change goes here.
 
 -- @UNDO
