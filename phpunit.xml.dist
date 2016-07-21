@@ -18,9 +18,12 @@
     timeoutForSmallTests="5"
     timeoutForMediumTests="10"
     timeoutForLargeTests="15">
+<php>
+         <ini name="display_errors" value="true"/>
+    </php>
     <testsuites>
         <testsuite name="php db migrate test suite">
-            <directory>./test *Test.php</directory>
+            <directory>./tests</directory>
         </testsuite>
     </testsuites>
 </phpunit>
