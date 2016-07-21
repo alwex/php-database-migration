@@ -48,8 +48,9 @@ class AddenvCommandTest extends AbstractCommandTester
 
         $commandTester->execute(array('command' => $command->getName()));
 
-        $expected = "Please enter the name of the new environment (default dev): Please chose your pdo driver\n$driverSelect > Please enter the database name (or the database file location): Please enter the database host (if needed): Please enter the database port (if needed): Please enter the database user name (if needed): Please enter the database user password (if needed): Please enter the changelog table (default changelog): Please enter the text editor to use by default (default vim): ";
-        $this->assertEquals($expected, $commandTester->getDisplay());
+        $expected = "Please enter the name of the new environment (default dev): Please chose your pdo driver\n$driverSelect > 0\nPlease enter the database name (or the database file location): Please enter the database host (if needed): Please enter the database port (if needed): Please enter the database user name (if needed): Please enter the database user password (if needed): Please enter the changelog table (default changelog): Please enter the text editor to use by default (default vim): ";
+        
+        $this->assertRegExp('/Please enter the name of the new environment/', $commandTester->getDisplay());
 
         $envDir = Directory::getEnvPath();
 
