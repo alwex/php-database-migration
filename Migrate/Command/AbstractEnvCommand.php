@@ -88,9 +88,9 @@ class AbstractEnvCommand extends AbstractComand
         if ($driver == 'sqlite') {
             $uri .= ":$dbname";
         }  else {
-            $uri .= ($dbname == null) ?: ":dbname=$dbname";
-            $uri .= ($host == null) ?: ";host=$host";
-            $uri .= ($port == null) ?: ";port=$port";
+            $uri .= ($dbname == null) ? '' : ":dbname=$dbname";
+            $uri .= ($host == null) ? '' : ";host=$host";
+            $uri .= ($port == null) ? '' : ";port=$port";
         }
         $this->db = new \PDO(
             $uri,

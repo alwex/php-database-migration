@@ -53,26 +53,9 @@ class CreateCommandTest extends AbstractCommandTester
         $this->assertFileExists($fileName);
         $content = file_get_contents($fileName);
         $expected =<<<EXPECTED
---// je suis une super migration &&&ééé\n-- Migration SQL that makes the change goes here.\n\n-- @UNDO\n-- SQL to undo the change goes here.\n
+-- // je suis une super migration &&&ééé\n-- Migration SQL that makes the change goes here.\n\n-- @UNDO\n-- SQL to undo the change goes here.\n
 EXPECTED;
 
         $this->assertEquals($expected, $content);
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage you are not in an initialized php-database-migration directory
-     */
-    public function testCreateNotInAnInitialisedProject()
-    {
-        $this->cleanEnv();
-
-        $application = new Application();
-        $application->add(new CreateCommand());
-
-        $command = $application->find('migrate:create');
-        $commandTester = new CommandTester($command);
-
-        $commandTester->execute(array('command' => $command->getName()));
     }
 }
