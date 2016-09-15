@@ -201,19 +201,25 @@ class AbstractEnvCommand extends AbstractComand
 
     /**
      * @param Migration $migration
+     * @param bool $changeLogOnly
      */
-    public function executeUpMigration(Migration $migration)
+    public function executeUpMigration(Migration $migration, $changeLogOnly = false)
     {
-        $this->getDb()->query($migration->getSqlUp());
+        if ($changeLogOnly === false) {
+            $this->getDb()->query($migration->getSqlUp());
+        }
         $this->saveToChangelog($migration);
     }
 
     /**
      * @param Migration $migration
+     * @param bool $changeLogOnly
      */
-    public function executeDownMigration(Migration $migration)
+    public function executeDownMigration(Migration $migration, $changeLogOnly = false)
     {
-        $this->getDb()->query($migration->getSqlDown());
+        if ($changeLogOnly === false) {
+            $this->getDb()->query($migration->getSqlDown());
+        }
         $this->removeFromChangelog($migration);
     }
 
