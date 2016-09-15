@@ -41,6 +41,12 @@ class DownCommand extends AbstractEnvCommand {
                 InputOption::VALUE_REQUIRED,
                 'If you need to down this migration id only'
             )
+            ->addOption(
+                'changelog-only',
+                null,
+                InputOption::VALUE_NONE,
+                'Mark as applied without executing SQL '
+            )
         ;
     }
 
@@ -48,6 +54,7 @@ class DownCommand extends AbstractEnvCommand {
     {
         $this->init($input, $output);
 
+        $changeLogOnly = (bool) $input->getOption('changelog-only');
         /* @var $questions QuestionHelper */
         $questions = $this->getHelperSet()->get('question');
 
@@ -73,7 +80,7 @@ class DownCommand extends AbstractEnvCommand {
                 /* @var $migration \Migrate\Migration */
                 foreach ($toExecute as $migration) {
                     $progress->setMessage($migration->getDescription());
-                    $this->executeDownMigration($migration);
+                    $this->executeDownMigration($migration, $changeLogOnly);
                     $progress->advance();
                 }
 

@@ -117,6 +117,12 @@ You can now up all the pending migrations. If you decided to down a migration, t
 $ ./bin/migrate migrate:up [env]
 ```
 
+You can mark migrations as applied without executing SQL (e.g. if you switched from another migration system)
+
+```
+$ ./bin/migrate migrate:up [env] --changelog-only
+```
+
 For developement purpose, it is also possible to up a single migration without taking care of the other ones:
 
 ```
