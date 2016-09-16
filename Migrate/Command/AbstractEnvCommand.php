@@ -71,6 +71,8 @@ class AbstractEnvCommand extends AbstractComand
 
         $envFile = $locator->locate($env . '.yml');
 
+        var_dump (file_exists($envFile));
+
         $loader = new Yaml();
         $conf = $loader->parse($envFile);
 
