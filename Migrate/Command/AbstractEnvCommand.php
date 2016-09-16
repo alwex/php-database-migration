@@ -71,13 +71,11 @@ class AbstractEnvCommand extends AbstractComand
 
         $envFile = $locator->locate($env . '.yml');
 
-        var_dump (file_exists($envFile));
-
         $loader = new Yaml();
         $conf = $loader->parse($envFile);
 
         $this->config = $conf;
-var_dump($conf);
+
         $driver = ArrayUtil::get($conf['connection'], 'driver');
         $port = ArrayUtil::get($conf['connection'], 'port');
         $host = ArrayUtil::get($conf['connection'], 'host');
