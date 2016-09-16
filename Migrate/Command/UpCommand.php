@@ -43,6 +43,8 @@ class UpCommand extends AbstractEnvCommand {
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->checkEnv();
+
         $this->init($input, $output);
 
         $toExecute = $this->filterMigrationsToExecute($input, $output);

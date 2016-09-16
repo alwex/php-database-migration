@@ -7,5 +7,6 @@ clean.sh
 .idea
 tests/test.sqlite
 vendor
+/bin/phpunit
 .php-database-migration
 .twgit_features_subject
