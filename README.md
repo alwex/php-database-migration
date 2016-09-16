@@ -1,6 +1,7 @@
 PhpDbMigration - full PHP database migration tool
 =================================================
 
+[![Build Status](https://travis-ci.org/alwex/php-database-migration.svg?branch=master)](https://travis-ci.org/alwex/php-database-migration)
 [![Packagist](https://img.shields.io/packagist/dt/php-database-migration/php-database-migration.svg?maxAge=2592000)]()
 
 This is a full standalone PHP tool based on [Symfony Console](http://symfony.com/doc/current/components/console)
