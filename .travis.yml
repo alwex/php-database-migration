@@ -12,3 +12,5 @@ install:
 notifications:
   on_success: always
   on_failure: always
+
+sudo: false
