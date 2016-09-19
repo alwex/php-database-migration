@@ -3,6 +3,7 @@ PhpDbMigration - full PHP database migration tool
 
 [![Build Status](https://travis-ci.org/alwex/php-database-migration.svg?branch=master)](https://travis-ci.org/alwex/php-database-migration)
 [![Packagist](https://img.shields.io/packagist/dt/php-database-migration/php-database-migration.svg?maxAge=2592000)]()
+[![Version](http://img.shields.io/packagist/v/php-database-migration/php-database-migration.svg?style=flat)](https://packagist.org/packages/php-database-migration/php-database-migration)
 
 This is a full standalone PHP tool based on [Symfony Console](http://symfony.com/doc/current/components/console)
 and inspired by the Rails database migration tool and MyBatis. It merges the functionality of the two tools and
@@ -116,6 +117,12 @@ You can now up all the pending migrations. If you decided to down a migration, t
 
 ```
 $ ./bin/migrate migrate:up [env]
+```
+
+You can mark migrations as applied without executing SQL (e.g. if you switched from another migration system)
+
+```
+$ ./bin/migrate migrate:up [env] --changelog-only
 ```
 
 For developement purpose, it is also possible to up a single migration without taking care of the other ones:

@@ -38,6 +38,12 @@ class UpCommand extends AbstractEnvCommand {
                 InputOption::VALUE_REQUIRED,
                 'If you need to up this migration id only'
             )
+            ->addOption(
+                'changelog-only',
+                null,
+                InputOption::VALUE_NONE,
+                'Mark as applied without executing SQL '
+            )
         ;
     }
 
@@ -47,6 +53,7 @@ class UpCommand extends AbstractEnvCommand {
 
         $this->init($input, $output);
 
+        $changeLogOnly = (bool) $input->getOption('changelog-only');
         $toExecute = $this->filterMigrationsToExecute($input, $output);
 
         if (count($toExecute) == 0) {
@@ -64,7 +71,7 @@ class UpCommand extends AbstractEnvCommand {
             /* @var $migration \Migrate\Migration */
             foreach ($toExecute as $migration) {
                 $progress->setMessage($migration->getDescription());
-                $this->executeUpMigration($migration);
+                $this->executeUpMigration($migration, $changeLogOnly);
                 $progress->advance();
             }
 
