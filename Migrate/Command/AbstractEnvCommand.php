@@ -11,7 +11,6 @@ namespace Migrate\Command;
 
 use Migrate\Migration;
 use Migrate\Utils\ArrayUtil;
-use SebastianBergmann\GlobalState\RuntimeException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -208,21 +207,25 @@ class AbstractEnvCommand extends AbstractComand
 
     /**
      * @param Migration $migration
+     * @param bool $changeLogOnly
      */
-    public function executeUpMigration(Migration $migration)
+    public function executeUpMigration(Migration $migration, $changeLogOnly = false)
     {
         $this->getDb()->beginTransaction();
-        $result = $this->getDb()->exec($migration->getSqlUp());
 
-        if ($result === false) {
-            // error while executing the migration
-            $errorInfo = "";
-            $errorInfos = $this->getDb()->errorInfo();
-            foreach ($errorInfos as $line) {
-                $errorInfo .= "\n$line";
+        if ($changeLogOnly === false) {
+            $result = $this->getDb()->exec($migration->getSqlUp());
+
+            if ($result === false) {
+                // error while executing the migration
+                $errorInfo = "";
+                $errorInfos = $this->getDb()->errorInfo();
+                foreach ($errorInfos as $line) {
+                    $errorInfo .= "\n$line";
+                }
+                $this->getDb()->rollBack();
+                throw new \RuntimeException("migration error, some SQL may be wrong\n\nid: {$migration->getId()}\nfile: {$migration->getFile()}\n" . $errorInfo);
             }
-            $this->getDb()->rollBack();
-            throw new \RuntimeException("migration error, some SQL may be wrong\n\nid: {$migration->getId()}\nfile: {$migration->getFile()}\n" . $errorInfo);
         }
 
         $this->saveToChangelog($migration);
@@ -231,21 +234,25 @@ class AbstractEnvCommand extends AbstractComand
 
     /**
      * @param Migration $migration
+     * @param bool $changeLogOnly
      */
-    public function executeDownMigration(Migration $migration)
+    public function executeDownMigration(Migration $migration, $changeLogOnly = false)
     {
         $this->getDb()->beginTransaction();
-        $result = $this->getDb()->exec($migration->getSqlDown());
 
-        if ($result === false) {
-            // error while executing the migration
-            $errorInfo = "";
-            $errorInfos = $this->getDb()->errorInfo();
-            foreach ($errorInfos as $line) {
-                $errorInfo .= "\n$line";
+        if ($changeLogOnly === false) {
+            $result = $this->getDb()->exec($migration->getSqlDown());
+
+            if ($result === false) {
+                // error while executing the migration
+                $errorInfo = "";
+                $errorInfos = $this->getDb()->errorInfo();
+                foreach ($errorInfos as $line) {
+                    $errorInfo .= "\n$line";
+                }
+                $this->getDb()->rollBack();
+                throw new \RuntimeException("migration error, some SQL may be wrong\n\nid: {$migration->getId()}\nfile: {$migration->getFile()}\n" . $errorInfo);
             }
-            $this->getDb()->rollBack();
-            throw new \RuntimeException("migration error, some SQL may be wrong\n\nid: {$migration->getId()}\nfile: {$migration->getFile()}\n" . $errorInfo);
         }
         $this->removeFromChangelog($migration);
         $this->getDb()->commit();
