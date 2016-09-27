@@ -53,7 +53,7 @@ Warning, all migrate commands must be executed on your root folder like `bin/mig
             }
         ],
         "require": {
-            "php-database-migration/php-database-migration" :"3.4.*"
+            "php-database-migration/php-database-migration" :"3.6.*"
         },
         "config": {
             "bin-dir": "bin"
