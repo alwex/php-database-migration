@@ -75,7 +75,7 @@ class AddEnvCommand extends AbstractEnvCommand {
         $defaultEditorQuestion = new Question("Please enter the text editor to use by default <info>(default vim)</info>: ", "vim");
         $defaultEditor = $questions->ask($input, $output, $defaultEditorQuestion);
 
-        $confTemplate = file_get_contents(__DIR__ . '/../../templates/env.yml');
+        $confTemplate = file_get_contents(__DIR__ . '/../../templates/env.yml.tpl');
         $confTemplate = str_replace('{DRIVER}', $driver, $confTemplate);
         $confTemplate = str_replace('{HOST}', $dbHost, $confTemplate);
         $confTemplate = str_replace('{PORT}', $dbPort, $confTemplate);
