@@ -64,7 +64,7 @@ class AbstractEnvCommand extends AbstractComand
         $configDirectory = array(getcwd() . '/.php-database-migration/environments');
         $locator = new FileLocator($configDirectory);
 
-        if ($env == null) {
+        if ($env === null) {
             $env = $input->getArgument('env');
         }
 
@@ -86,9 +86,9 @@ class AbstractEnvCommand extends AbstractComand
         if ($driver == 'sqlite') {
             $uri .= ":$dbname";
         }  else {
-            $uri .= ($dbname == null) ? '' : ":dbname=$dbname";
-            $uri .= ($host == null) ? '' : ";host=$host";
-            $uri .= ($port == null) ? '' : ";port=$port";
+            $uri .= ($dbname === null) ? '' : ":dbname=$dbname";
+            $uri .= ($host === null) ? '' : ";host=$host";
+            $uri .= ($port === null) ? '' : ";port=$port";
         }
         $this->db = new \PDO(
             $uri,
@@ -170,7 +170,6 @@ class AbstractEnvCommand extends AbstractComand
 
     public function getToDownMigrations()
     {
-        $locales = $this->getLocalMigrations();
         $remotes = $this->getRemoteMigrations();
 
         ksort($remotes);
@@ -272,7 +271,7 @@ class AbstractEnvCommand extends AbstractComand
         }
 
         $only = $input->getOption('only');
-        if ($only != null) {
+        if ($only !== null) {
             if (! array_key_exists($only, $toExecute)) {
                 throw new \RuntimeException("Impossible to execute migration $only!");
             }
@@ -281,7 +280,7 @@ class AbstractEnvCommand extends AbstractComand
         }
 
         $to = $input->getOption('to');
-        if ($to != null) {
+        if ($to !== null) {
             if (! array_key_exists($to, $toExecute)) {
                 throw new \RuntimeException("Target migration $to does not exists or has already been executed/downed!");
             }

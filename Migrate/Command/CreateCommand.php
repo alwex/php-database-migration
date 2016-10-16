@@ -8,11 +8,8 @@
 namespace Migrate\Command;
 
 use Cocur\Slugify\Slugify;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
@@ -37,7 +34,7 @@ class CreateCommand extends AbstractEnvCommand {
         $description = $questions->ask($input, $output, $descriptionQuestion);
 
         $editorQuestion = new Question("Please chose which editor to use <info>(default vim)</info>: ", "vim");
-        $editor = $questions->ask($input, $output, $editorQuestion);
+        $questions->ask($input, $output, $editorQuestion);
 
         $slugger = new Slugify();
         $filename = $slugger->slugify($description);
