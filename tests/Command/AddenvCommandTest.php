@@ -65,6 +65,7 @@ connection:
 
 changelog: changelog
 default_editor: vim
+
 EXPECTED;
 
         $fileContent = file_get_contents($envDir . '/testing.yml');

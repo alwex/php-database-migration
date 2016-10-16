@@ -177,7 +177,7 @@ class Migration
 
     public function load($migrationDir)
     {
-        @$content = file_get_contents($migrationDir . '/' . $this->getFile());
+        $content = file_get_contents($migrationDir . '/' . $this->getFile());
         if ($content && strpos($content, '@UNDO') > 0) {
             $sql = explode('-- @UNDO', $content);
             $this->setSqlUp($sql[0]);
