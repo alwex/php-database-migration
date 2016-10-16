@@ -1,9 +1,5 @@
 environments
 clean.sh
-.project
-.buildpath
-.settings
-.idea
 tests/test.sqlite
 vendor
 /bin/phpunit

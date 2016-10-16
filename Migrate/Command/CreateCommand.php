@@ -8,19 +8,18 @@
 namespace Migrate\Command;
 
 use Cocur\Slugify\Slugify;
-use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
-class CreateCommand extends AbstractEnvCommand {
+class CreateCommand extends AbstractEnvCommand
+{
 
     protected function configure()
     {
         $this
             ->setName('migrate:create')
-            ->setDescription('Create a SQL migration')
-        ;
+            ->setDescription('Create a SQL migration');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
