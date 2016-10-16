@@ -5,6 +5,9 @@ PhpDbMigration - full PHP database migration tool
 [![Packagist](https://img.shields.io/packagist/dt/php-database-migration/php-database-migration.svg?maxAge=2592000)]()
 [![Version](http://img.shields.io/packagist/v/php-database-migration/php-database-migration.svg?style=flat)](https://packagist.org/packages/php-database-migration/php-database-migration)
 
+
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/5363e9e0-123a-4a8e-ad64-cb019e63bbba/big.png)](https://insight.sensiolabs.com/projects/5363e9e0-123a-4a8e-ad64-cb019e63bbba)
+
 This is a full standalone PHP tool based on [Symfony Console](http://symfony.com/doc/current/components/console)
 and inspired by the Rails database migration tool and MyBatis. It merges the functionality of the two tools and
 has been designed to be as flexible as possible.
