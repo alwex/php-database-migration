@@ -33,7 +33,7 @@ class CreateCommand extends AbstractEnvCommand
         $description = $questions->ask($input, $output, $descriptionQuestion);
 
         $editorQuestion = new Question("Please chose which editor to use <info>(default vim)</info>: ", "vim");
-        $questions->ask($input, $output, $editorQuestion);
+        $editor = $questions->ask($input, $output, $editorQuestion);
 
         $slugger = new Slugify();
         $filename = $slugger->slugify($description);
@@ -48,7 +48,7 @@ class CreateCommand extends AbstractEnvCommand
         $output->writeln("<info>$migrationFullPath created</info>");
 
         if (!defined('PHPUNIT')) {
-            system("vim $migrationFullPath  > `tty`");
+            system("$editor $migrationFullPath  > `tty`");
         }
     }
 
