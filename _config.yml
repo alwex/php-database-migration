@@ -1,5 +1,4 @@
 theme: jekyll-theme-cayman
-site:
-  github:
-    show_downloads: true
+google_analytics: UA—XXXXXXXX-X
+show_downloads: true
 
