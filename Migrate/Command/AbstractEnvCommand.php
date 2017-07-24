@@ -69,10 +69,6 @@ class AbstractEnvCommand extends AbstractComand
 
         $parser = $configLocator->locate($env);
 
-        if (is_null($parser)) {
-            throw new \RuntimeException("Could not locate supported environment file");
-        }
-
         $conf = $parser->parse();
 
         $this->config = $conf;

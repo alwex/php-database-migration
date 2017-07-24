@@ -10,11 +10,11 @@ namespace Migrate\Config;
 
 class ConfigLocator
 {
-    static $SUPPORTED_PARSERS = [
-        'yaml' => '\Migrate\Config\YamlConfigParser',
+    public static $SUPPORTED_PARSERS = array(
+        'yml' => '\Migrate\Config\YamlConfigParser',
         'json' => '\Migrate\Config\JsonConfigParser',
         'php' => '\Migrate\Config\PhpConfigParser'
-    ];
+    );
 
     private $configPath;
 
@@ -32,6 +32,8 @@ class ConfigLocator
                 return new $parserClass($path);
             }
         }
-        return null;
+        throw new \RuntimeException(
+            sprintf('Environment file %s does not exist or file not supported', $nameWithoutExt)
+        );
     }
 }

@@ -34,7 +34,7 @@ class AbstractCommandTester extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function createEnv()
+    public function createEnv($format = 'yml')
     {
         $application = new Application();
         $application->add(new AddEnvCommand());
@@ -49,7 +49,7 @@ class AbstractCommandTester extends \PHPUnit_Framework_TestCase
         $question = $command->getHelper('question');
         $question->setInputStream(InputStreamUtil::type("testing\n$driverKey\ntest.sqlite\n\n\n\n\nchangelog\nvim\n"));
 
-        $commandTester->execute(array('command' => $command->getName()));
+        $commandTester->execute(array('command' => $command->getName(), 'format' => $format));
     }
 
     public function initEnv()
