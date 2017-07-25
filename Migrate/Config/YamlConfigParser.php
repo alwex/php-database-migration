@@ -10,7 +10,7 @@ namespace Migrate\Config;
 
 use Symfony\Component\Yaml\Yaml;
 
-class YamlConfigParser extends BaseConfigParserInterface
+class YamlConfigParser extends BaseConfigParser
 {
     public function parse()
     {
