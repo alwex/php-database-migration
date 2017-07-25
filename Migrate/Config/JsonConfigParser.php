@@ -2,7 +2,7 @@
 
 namespace Migrate\Config;
 
-class JsonConfigParser extends BaseConfigParser
+class JsonConfigParser extends BaseConfigParserInterface
 {
     public function parse()
     {

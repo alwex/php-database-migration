@@ -2,7 +2,7 @@
 
 namespace Migrate\Config;
 
-interface ConfigParser
+interface ConfigParserInterface
 {
     public function parse();
 }

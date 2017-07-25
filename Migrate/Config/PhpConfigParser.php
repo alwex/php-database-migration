@@ -8,7 +8,7 @@
 
 namespace Migrate\Config;
 
-class PhpConfigParser extends BaseConfigParser
+class PhpConfigParser extends BaseConfigParserInterface
 {
     public function parse()
     {

@@ -8,7 +8,7 @@
 
 namespace Migrate\Config;
 
-abstract class BaseConfigParser implements ConfigParser
+abstract class BaseConfigParserInterface implements ConfigParserInterface
 {
     protected $configFile;
 
