@@ -80,7 +80,7 @@ class AbstractEnvCommand extends AbstractComand
         $dbname = ArrayUtil::get($conf['connection'], 'database');
         $username = ArrayUtil::get($conf['connection'], 'username');
         $password = ArrayUtil::get($conf['connection'], 'password');
-        $charset = ArrayUtil::get($conf['charset'], 'charset');
+        $charset = ArrayUtil::get($conf['connection'], 'charset');
 
         $uri = $driver;
 
