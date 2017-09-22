@@ -69,6 +69,9 @@ class AddEnvCommand extends AbstractEnvCommand {
         $dbUserPasswordQuestion = new Question("Please enter the database user password (if needed): ", "~");
         $dbUserPassword = $questions->ask($input, $output, $dbUserPasswordQuestion);
 
+        $dbCharsetQuestion = new Question("Please enter the database charset (if needed): ", "~");
+        $dbCharset = $questions->ask($input, $output, $dbCharsetQuestion);
+
         $changelogTableQuestion = new Question("Please enter the changelog table <info>(default changelog)</info>: ", "changelog");
         $changelogTable = $questions->ask($input, $output, $changelogTableQuestion);
 
@@ -82,6 +85,7 @@ class AddEnvCommand extends AbstractEnvCommand {
         $confTemplate = str_replace('{USERNAME}', $dbUserName, $confTemplate);
         $confTemplate = str_replace('{PASSWORD}', $dbUserPassword, $confTemplate);
         $confTemplate = str_replace('{DATABASE}', $dbName, $confTemplate);
+        $confTemplate = str_replace('{CHARSET}', $dbCharset, $confTemplate);
         $confTemplate = str_replace('{CHANGELOG}', $changelogTable, $confTemplate);
         $confTemplate = str_replace('{EDITOR}', $defaultEditor, $confTemplate);
 
