@@ -47,7 +47,7 @@ class AbstractCommandTester extends \PHPUnit_Framework_TestCase
 
         /* @var $question QuestionHelper */
         $question = $command->getHelper('question');
-        $question->setInputStream(InputStreamUtil::type("testing\n$driverKey\ntest.sqlite\n\n\n\n\nchangelog\nvim\n"));
+        $question->setInputStream(InputStreamUtil::type("testing\n$driverKey\ntest.sqlite\n\n\n\n\n\nchangelog\nvim\n"));
 
         $commandTester->execute(array('command' => $command->getName()));
     }
