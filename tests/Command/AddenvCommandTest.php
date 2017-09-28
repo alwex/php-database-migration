@@ -44,7 +44,7 @@ class AddenvCommandTest extends AbstractCommandTester
 
         /* @var $question QuestionHelper */
         $question = $command->getHelper('question');
-        $question->setInputStream(InputStreamUtil::type("testing\n$driverKey\nmigrate_test\nlocalhost\n5432\naguidet\naguidet\nchangelog\nvim\n"));
+        $question->setInputStream(InputStreamUtil::type("testing\n$driverKey\nmigrate_test\nlocalhost\n5432\naguidet\naguidet\nutf8\nchangelog\nvim\n"));
 
         $commandTester->execute(array('command' => $command->getName()));
 
@@ -62,6 +62,7 @@ connection:
     username: aguidet
     password: aguidet
     database: migrate_test
+    charset:  utf8
 
 changelog: changelog
 default_editor: vim
