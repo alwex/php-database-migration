@@ -5,6 +5,7 @@ connection:
     username: {USERNAME}
     password: {PASSWORD}
     database: {DATABASE}
+    charset:  {CHARSET}
 
 changelog: {CHANGELOG}
 default_editor: {EDITOR}

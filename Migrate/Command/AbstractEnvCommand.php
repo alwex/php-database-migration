@@ -80,6 +80,7 @@ class AbstractEnvCommand extends AbstractComand
         $dbname = ArrayUtil::get($conf['connection'], 'database');
         $username = ArrayUtil::get($conf['connection'], 'username');
         $password = ArrayUtil::get($conf['connection'], 'password');
+        $charset = ArrayUtil::get($conf['connection'], 'charset');
 
         $uri = $driver;
 
@@ -89,6 +90,7 @@ class AbstractEnvCommand extends AbstractComand
             $uri .= ($dbname === null) ? '' : ":dbname=$dbname";
             $uri .= ($host === null) ? '' : ";host=$host";
             $uri .= ($port === null) ? '' : ";port=$port";
+            $uri .= ($charset === null) ? '' : ";charset=$charset";
         }
         $this->db = new \PDO(
             $uri,
