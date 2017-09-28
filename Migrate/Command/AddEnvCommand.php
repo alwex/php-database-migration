@@ -7,6 +7,8 @@
 
 namespace Migrate\Command;
 
+use Migrate\Config\ConfigLocator;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
@@ -19,11 +21,26 @@ class AddEnvCommand extends AbstractEnvCommand {
         $this
             ->setName('migrate:addenv')
             ->setDescription('Initialise an environment to work with php db migrate')
+            ->addArgument(
+                'format',
+                InputArgument::OPTIONAL,
+                'Environment file format: (yml, json or php), default: yml'
+            )
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $format = $input->getArgument('format');
+        $supportedFormats = array_keys(ConfigLocator::$SUPPORTED_PARSERS);
+
+        if (is_null($format)) {
+            $format = 'yml';
+        }
+
+        if (!in_array($format, $supportedFormats)) {
+            throw new \RuntimeException(sprintf('Invalid file format: %s', $format));
+        }
 
         // init directories
         if(! file_exists($this->getMainDir())) {
@@ -46,7 +63,7 @@ class AddEnvCommand extends AbstractEnvCommand {
         $envQuestion = new Question("Please enter the name of the new environment <info>(default dev)</info>: ", "dev");
         $envName = $questions->ask($input, $output, $envQuestion );
 
-        $envConfigFile = $this->getEnvironmentDir() . '/' . $envName . '.yml';
+        $envConfigFile = $this->getEnvironmentDir() . '/' . $envName . '.' . $format;
         if (file_exists($envConfigFile)) {
             throw new \InvalidArgumentException("environment [$envName] is already defined!");
         }
@@ -78,7 +95,7 @@ class AddEnvCommand extends AbstractEnvCommand {
         $defaultEditorQuestion = new Question("Please enter the text editor to use by default <info>(default vim)</info>: ", "vim");
         $defaultEditor = $questions->ask($input, $output, $defaultEditorQuestion);
 
-        $confTemplate = file_get_contents(__DIR__ . '/../../templates/env.yml.tpl');
+        $confTemplate = file_get_contents(__DIR__ . '/../../templates/env.' . $format . '.tpl');
         $confTemplate = str_replace('{DRIVER}', $driver, $confTemplate);
         $confTemplate = str_replace('{HOST}', $dbHost, $confTemplate);
         $confTemplate = str_replace('{PORT}', $dbPort, $confTemplate);
