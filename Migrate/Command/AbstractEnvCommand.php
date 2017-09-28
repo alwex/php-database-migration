@@ -9,12 +9,11 @@
 namespace Migrate\Command;
 
 
+use Migrate\Config\ConfigLocator;
 use Migrate\Migration;
 use Migrate\Utils\ArrayUtil;
-use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Yaml\Yaml;
 
 class AbstractEnvCommand extends AbstractComand
 {
@@ -61,16 +60,16 @@ class AbstractEnvCommand extends AbstractComand
 
     protected function init(InputInterface $input, OutputInterface $output, $env = null)
     {
-        $configDirectory = array(getcwd() . '/.php-database-migration/environments');
-        $locator = new FileLocator($configDirectory);
+        $configDirectory = getcwd() . '/.php-database-migration/environments';
+        $configLocator = new ConfigLocator($configDirectory);
 
         if ($env === null) {
             $env = $input->getArgument('env');
         }
 
-        $envFile = $locator->locate($env . '.yml');
+        $parser = $configLocator->locate($env);
 
-        $conf = Yaml::parse(file_get_contents($envFile));
+        $conf = $parser->parse();
 
         $this->config = $conf;
 
