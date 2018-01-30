@@ -226,7 +226,7 @@ EXPECTED;
 
         $currentTime = time();
         $validDates = array();
-        foreach (range(0, 1) as $i) {
+        foreach (range(-1, 1) as $i) {
             $validDates[] = date('Y-m-d H:i:s', $currentTime + $i);
         }
         $dateRegex = '(' . implode('|', $validDates) . ') *';
