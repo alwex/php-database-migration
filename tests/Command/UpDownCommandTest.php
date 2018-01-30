@@ -224,26 +224,34 @@ EXPECTED;
         $command = self::$application->find('migrate:status');
         $commandTester = new CommandTester($command);
 
-        $currentDate = date('Y-m-d H:i:s');
+        $currentTime = time();
+        $validDates = array();
+        foreach (range(-1, 1) as $i) {
+            $validDates[] = date('Y-m-d H:i:s', $currentTime + $i);
+        }
+        $dateRegex = '(' . implode('|', $validDates) . ') *';
 
         $commandTester->execute(array(
             'command' => $command->getName(),
             'env' => 'testing'
         ));
 
-        $expected =<<<EXPECTED
+        $expected =<<<'EXPECTED'
 connected
 +----+---------+---------------------+-------------+
 | id | version | applied at          | description |
 +----+---------+---------------------+-------------+
-| 0  |         | $currentDate | migration   |
+| 0  |         | DATE_REGEX          | migration   |
 | 1  |         |                     | migration   |
-| 2  |         | $currentDate | migration   |
+| 2  |         | DATE_REGEX          | migration   |
 +----+---------+---------------------+-------------+
 
 EXPECTED;
 
-        $this->assertEquals($expected, $commandTester->getDisplay());
+        $pattern = '/^' . preg_quote($expected, '/') . '$/';
+        $pattern = preg_replace('/DATE_REGEX */', $dateRegex, $pattern);
+
+        $this->assertRegExp($pattern, $commandTester->getDisplay());
 
     }
 
