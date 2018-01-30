@@ -15,7 +15,7 @@ use Migrate\Utils\ArrayUtil;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class AbstractEnvCommand extends AbstractComand
+class AbstractEnvCommand extends AbstractCommand
 {
 
     protected static $progressBarFormat = '%current%/%max% [%bar%] %percent% % [%message%]';
@@ -283,7 +283,7 @@ class AbstractEnvCommand extends AbstractComand
         $to = $input->getOption('to');
         if ($to !== null) {
             if (! array_key_exists($to, $toExecute)) {
-                throw new \RuntimeException("Target migration $to does not exists or has already been executed/downed!");
+                throw new \RuntimeException("Target migration $to does not exist or has already been executed/downed!");
             }
 
             $temp = $toExecute;
