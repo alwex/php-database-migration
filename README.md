@@ -78,7 +78,7 @@ in `./.php-database-migration/environments/[env].yml`.
 Initialization
 --------------
 Once the environment is added, you have to initialize it. This verifies that the database connection works, and
-create a new database table for tracking the current database changes:
+creates a new database table for tracking the current database changes:
 
 ```
 $ ./bin/migrate migrate:init [env]
@@ -116,7 +116,8 @@ $ ./bin/migrate migrate:status [env]
 
 Up and down
 -----------
-You can now up all the pending migrations. If you decided to down a migration, the last one will be downed alone to prevent from mistake. You will be asked to confirm the downgrade of your database before runing the real SQL script.
+You can now up all the pending migrations. If you decide to down a migration, the last one will be downed alone to
+prevent mistakes. You will be asked to confirm the downgrade of your database before running the real SQL script.
 
 ```
 $ ./bin/migrate migrate:up [env]
@@ -128,13 +129,13 @@ You can mark migrations as applied without executing SQL (e.g. if you switched f
 $ ./bin/migrate migrate:up [env] --changelog-only
 ```
 
-For developement purpose, it is also possible to up a single migration without taking care of the other ones:
+For development purposes, it is also possible to up a single migration without taking care of the other ones:
 
 ```
 $ ./bin/migrate migrate:up [env] --only=[migrationid]
 ```
 
-or migrate to specific migration (it will run all migrations including specified migration)
+or migrate to specific migration (it will run all migrations, including the specified migration)
 
 ```
 $ ./bin/migrate migrate:up [env] --to=[migrationid]
