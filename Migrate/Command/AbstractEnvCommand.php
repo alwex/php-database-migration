@@ -15,7 +15,7 @@ use Migrate\Utils\ArrayUtil;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class AbstractEnvCommand extends AbstractComand
+class AbstractEnvCommand extends AbstractCommand
 {
 
     protected static $progressBarFormat = '%current%/%max% [%bar%] %percent% % [%message%]';

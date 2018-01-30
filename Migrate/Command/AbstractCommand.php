@@ -10,7 +10,7 @@ namespace Migrate\Command;
 use Symfony\Component\Console\Command\Command;
 
 
-class AbstractComand extends Command {
+class AbstractCommand extends Command {
 
     protected $mainDir;
     protected $environmentDir;
