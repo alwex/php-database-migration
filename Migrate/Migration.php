@@ -117,6 +117,8 @@ class Migration
         $this->sqlUp = $sqlUp;
     }
 
+
+
     /**
      * @return mixed
      */
@@ -180,8 +182,41 @@ class Migration
         $content = file_get_contents($migrationDir . '/' . $this->getFile());
         if ($content && strpos($content, '@UNDO') > 0) {
             $sql = explode('-- @UNDO', $content);
-            $this->setSqlUp($sql[0]);
-            $this->setSqlDown($sql[1]);
+            $this->setSqlUp($this->parseSQLFile($migrationDir, $sql[0]));
+            $this->setSqlDown($this->parseSQLFile($migrationDir, $sql[1]));
+        }
+    }
+
+    public function parseSQLFile($migrationDir, $content = null, $sqlFile = null, $nestingLevel = 1) {
+        if($nestingLevel > 5) {
+            // Do not allow more than 5 nesting level
+            throw new \RuntimeException(sprintf('Local migration "%s" is invalid : the "-- @FILE" annotation does not support more than 5 nesting level !', $this->getDescription()));
+        }
+        if( $sqlFile != null ) {
+            @$content = file_get_contents($migrationDir . '/' . $sqlFile);
+        }
+        if($content != null) {
+            if( strpos($content, '-- @FILE') !== false ) {
+                $buffer = '';
+                $isFile = false;
+                $lines = explode("\n", $content);
+                foreach($lines as $line) {
+                    if( strpos($line, '-- @FILE') !== false ) {
+                        $isFile = true;
+                        continue;
+                    }
+                    if( $isFile ) {
+                        $filename = trim($line);
+                        $buffer .= PHP_EOL . $this->parseSQLFile($migrationDir, null, $filename, ($nestingLevel+1));
+                        $isFile = false;
+                        continue;
+                    }
+                    $buffer .= PHP_EOL . $line;
+                }
+                return $buffer;
+            } else {
+                return $content;
+            }
         }
     }
 }

@@ -107,7 +107,7 @@ class AbstractEnvCommand extends AbstractCommand
     public function getLocalMigrations()
     {
         $fileList = scandir($this->getMigrationDir());
-        $fileList = ArrayUtil::filter($fileList);
+        $fileList = ArrayUtil::filter($this->getMigrationDir(), $fileList);
 
         $migrations = array();
         foreach ($fileList as $file) {
