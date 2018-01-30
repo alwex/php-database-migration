@@ -283,7 +283,7 @@ class AbstractEnvCommand extends AbstractCommand
         $to = $input->getOption('to');
         if ($to !== null) {
             if (! array_key_exists($to, $toExecute)) {
-                throw new \RuntimeException("Target migration $to does not exists or has already been executed/downed!");
+                throw new \RuntimeException("Target migration $to does not exist or has already been executed/downed!");
             }
 
             $temp = $toExecute;
