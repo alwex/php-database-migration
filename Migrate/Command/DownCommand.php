@@ -7,7 +7,6 @@
 
 namespace Migrate\Command;
 
-
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,7 +14,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
-class DownCommand extends AbstractEnvCommand {
+class DownCommand extends AbstractEnvCommand
+{
 
     protected function configure()
     {
@@ -44,8 +44,7 @@ class DownCommand extends AbstractEnvCommand {
                 null,
                 InputOption::VALUE_NONE,
                 'Mark as applied without executing SQL '
-            )
-        ;
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -62,15 +61,11 @@ class DownCommand extends AbstractEnvCommand {
         $areYouSure = $questions->ask($input, $output, $areYouSureQuestion);
 
         if ($areYouSure == 'yes') {
-
             $toExecute = $this->filterMigrationsToExecute($input, $output);
 
             if (count($toExecute) == 0) {
-
                 $output->writeln("your database is already up to date");
-
             } else {
-
                 $progress = new ProgressBar($output, count($toExecute));
 
                 $progress->setFormat(self::$progressBarFormat);

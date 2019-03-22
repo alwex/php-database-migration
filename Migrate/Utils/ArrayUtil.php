@@ -8,13 +8,15 @@
 
 namespace Migrate\Utils;
 
-
-class ArrayUtil {
-    public static function get(array $array, $key) {
+class ArrayUtil
+{
+    public static function get(array $array, $key)
+    {
         return (array_key_exists($key, $array)) ? $array[$key] : null;
     }
 
-    public static function filter(array $array) {
+    public static function filter(array $array)
+    {
         if (isset($array['.'])) {
             unset($array['.']);
         }
