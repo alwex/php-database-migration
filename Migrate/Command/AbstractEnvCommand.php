@@ -8,7 +8,6 @@
 
 namespace Migrate\Command;
 
-
 use Migrate\Config\ConfigLocator;
 use Migrate\Migration;
 use Migrate\Utils\ArrayUtil;
@@ -85,7 +84,7 @@ class AbstractEnvCommand extends AbstractCommand
 
         if ($driver == 'sqlite') {
             $uri .= ":$dbname";
-        }  else {
+        } else {
             $uri .= ($dbname === null) ? '' : ":dbname=$dbname";
             $uri .= ($host === null) ? '' : ";host=$host";
             $uri .= ($port === null) ? '' : ";port=$port";
@@ -207,7 +206,7 @@ class AbstractEnvCommand extends AbstractCommand
 
     /**
      * @param Migration $migration
-     * @param bool $changeLogOnly
+     * @param bool      $changeLogOnly
      */
     public function executeUpMigration(Migration $migration, $changeLogOnly = false)
     {
@@ -224,7 +223,12 @@ class AbstractEnvCommand extends AbstractCommand
                     $errorInfo .= "\n$line";
                 }
                 $this->getDb()->rollBack();
-                throw new \RuntimeException("migration error, some SQL may be wrong\n\nid: {$migration->getId()}\nfile: {$migration->getFile()}\n" . $errorInfo);
+                throw new \RuntimeException(sprintf(
+                    "migration error, some SQL may be wrong\n\nid: %s\nfile: %s\n %s",
+                    $migration->getId(),
+                    $migration->getFile(),
+                    $errorInfo
+                ));
             }
         }
 
@@ -234,7 +238,7 @@ class AbstractEnvCommand extends AbstractCommand
 
     /**
      * @param Migration $migration
-     * @param bool $changeLogOnly
+     * @param bool      $changeLogOnly
      */
     public function executeDownMigration(Migration $migration, $changeLogOnly = false)
     {
@@ -251,7 +255,12 @@ class AbstractEnvCommand extends AbstractCommand
                     $errorInfo .= "\n$line";
                 }
                 $this->getDb()->rollBack();
-                throw new \RuntimeException("migration error, some SQL may be wrong\n\nid: {$migration->getId()}\nfile: {$migration->getFile()}\n" . $errorInfo);
+                throw new \RuntimeException(sprintf(
+                    "migration error, some SQL may be wrong\n\nid: %s\nfile: %s\n",
+                    $migration->getId(),
+                    $migration->getFile(),
+                    $errorInfo
+                ));
             }
         }
         $this->removeFromChangelog($migration);
@@ -294,8 +303,7 @@ class AbstractEnvCommand extends AbstractCommand
                     break;
                 }
             }
-
-        } else if ($down && count($toExecute) > 1) {
+        } elseif ($down && count($toExecute) > 1) {
             // WARNING DOWN SPECIAL TREATMENT
             // we dont want all the database to be downed because
             // of a bad command!

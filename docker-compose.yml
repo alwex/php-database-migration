@@ -15,10 +15,10 @@ services:
     #    - "8080:80"
 
     php:
-      build: phpdocker/php-fpm
+      build: phpdocker/php
       container_name: php-database-migration-php-fpm
       working_dir: /application
       volumes:
         - .:/application
-        - ./phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/7.3/fpm/conf.d/99-overrides.ini
+        - ./phpdocker/php/php-ini-overrides.ini:/etc/php/7.3/fpm/conf.d/99-overrides.ini
 

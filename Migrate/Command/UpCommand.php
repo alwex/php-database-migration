@@ -13,7 +13,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class UpCommand extends AbstractEnvCommand {
+class UpCommand extends AbstractEnvCommand
+{
 
     protected function configure()
     {
@@ -42,8 +43,7 @@ class UpCommand extends AbstractEnvCommand {
                 null,
                 InputOption::VALUE_NONE,
                 'Mark as applied without executing SQL '
-            )
-        ;
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -56,11 +56,8 @@ class UpCommand extends AbstractEnvCommand {
         $toExecute = $this->filterMigrationsToExecute($input, $output);
 
         if (count($toExecute) == 0) {
-
             $output->writeln("your database is already up to date");
-
         } else {
-
             $progress = new ProgressBar($output, count($toExecute));
 
             $progress->setFormat(self::$progressBarFormat);

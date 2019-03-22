@@ -8,7 +8,6 @@
 
 namespace Migrate\Command;
 
-
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -26,8 +25,7 @@ class StatusCommand extends AbstractEnvCommand
                 'env',
                 InputArgument::REQUIRED,
                 'Environment'
-            )
-        ;
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
