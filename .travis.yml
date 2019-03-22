@@ -6,7 +6,7 @@ php:
 
 install:
   - composer install
-  - bin/phpcs Migrate/
+  - bin/phpcs --standard=PSR2 Migrate/
 
 notifications:
   on_success: always
