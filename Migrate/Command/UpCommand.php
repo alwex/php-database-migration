@@ -43,7 +43,18 @@ class UpCommand extends AbstractEnvCommand
                 null,
                 InputOption::VALUE_NONE,
                 'Mark as applied without executing SQL '
-            );
+            )->addOption(
+                'database',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Database '
+            )->addOption(
+                'driver',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'DB driver'
+            )
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

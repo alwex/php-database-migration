@@ -159,7 +159,6 @@ class Migration
         $slugger = new Slugify();
         $filename = $migration->getId() . '_' . $slugger->slugify($migration->getDescription()) . '.sql';
         $migration->setFile($filename);
-
         $migration->load($migrationDir);
 
         return $migration;
@@ -177,11 +176,14 @@ class Migration
 
     public function load($migrationDir)
     {
-        $content = file_get_contents($migrationDir . '/' . $this->getFile());
-        if ($content && strpos($content, '@UNDO') > 0) {
-            $sql = explode('-- @UNDO', $content);
-            $this->setSqlUp($sql[0]);
-            $this->setSqlDown($sql[1]);
+        $filePath=$migrationDir . '/' . $this->getFile();
+        if (file_exists($filePath)) {
+                $content = file_get_contents($filePath);
+            if ($content && strpos($content, '@UNDO') > 0) {
+                $sql = explode('-- @UNDO', $content);
+                $this->setSqlUp($sql[0]);
+                $this->setSqlDown($sql[1]);
+            }
         }
     }
 }
