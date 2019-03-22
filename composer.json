@@ -1,7 +1,7 @@
 {
-    "name": "alwex/php-database-migration",
+    "name": "elgaard/php-database-migration",
     "description": "rake and mybatis SQL migration tool",
-    "homepage": "https://github.com/alwex/php-database-migration",
+    "homepage": "https://github.com/elgaard/php-database-migration",
     "keywords": ["rake", "mybatis", "migration", "sql"],
     "type": "library",
     "license": "MIT",
@@ -9,6 +9,10 @@
         {
             "name": "GUIDET Alexandre",
             "email": "alwex@free.fr"
+        },
+        {
+            "name": "Niels Elgaard Larsen",
+            "email": "elgaard@agol.dk"
         }
     ],
     "require": {

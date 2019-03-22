@@ -71,7 +71,7 @@ class AddEnvCommand extends AbstractEnvCommand {
         $driverQuestion = new ChoiceQuestion("Please chose your pdo driver", $drivers);
         $driver = $questions->ask($input, $output, $driverQuestion);
 
-        $dbNameQuestion = new Question("Please enter the database name (or the database file location): ", "~");
+        $dbNameQuestion = new Question("Please enter the database name (or the database file location) (if needed): ", "~");
         $dbName = $questions->ask($input, $output, $dbNameQuestion);
 
         $dbHostQuestion = new Question("Please enter the database host (if needed): ", "~");

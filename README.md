@@ -72,8 +72,12 @@ The first thing to do before playing with SQL migrations is to add an environmen
 $ ./bin/migrate migrate:addenv
 ```
 
-You will be prompted to answer a series of questions about your environment, and then a config file will be saved
-in `./.php-database-migration/environments/[env].yml`.
+You will be prompted to answer a series of questions about your
+environment, and then a config file will be saved in
+`./.php-database-migration/environments/[env].yml`. You can skip all
+questions except the databse driver. But if you do not enter a database name,
+then you have to suppy it as an option in the following commands (
+--database=foo ). This is useful for e.g. testing scripts that create and copy databases on the fly.
 
 Initialization
 --------------
@@ -81,7 +85,7 @@ Once the environment is added, you have to initialize it. This verifies that the
 creates a new database table for tracking the current database changes:
 
 ```
-$ ./bin/migrate migrate:init [env]
+$ ./bin/migrate migrate:init env
 ```
 
 Create a migration

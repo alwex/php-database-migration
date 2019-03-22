@@ -11,6 +11,7 @@ namespace Migrate\Command;
 
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -26,6 +27,16 @@ class StatusCommand extends AbstractEnvCommand
                 'env',
                 InputArgument::REQUIRED,
                 'Environment'
+            )->addOption(
+                'database',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Database '
+            )->addOption(
+                'driver',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'DB driver'
             )
         ;
     }
