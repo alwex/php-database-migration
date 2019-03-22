@@ -79,13 +79,13 @@ class AbstractEnvCommand extends AbstractCommand
         $password = ArrayUtil::get($conf['connection'], 'password');
         $charset = ArrayUtil::get($conf['connection'], 'charset');
         if (empty($host)) {
-            $host="localhost";
+            $host = "localhost";
         }
         if (empty($dbname)) {
-            $dbname=$input->getOption('database');
+            $dbname = $input->getOption('database');
         }
         if (empty($driver)) {
-            $dbname=$input->getOption('driver');
+            $dbname = $input->getOption('driver');
         }
         $uri = $driver;
 
