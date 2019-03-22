@@ -8,8 +8,8 @@
 
 namespace Migrate\Enum;
 
-
-class Directory {
+class Directory
+{
 
     public static $appDirectory = '.php-database-migration';
 

@@ -9,8 +9,8 @@ namespace Migrate\Command;
 
 use Symfony\Component\Console\Command\Command;
 
-
-class AbstractCommand extends Command {
+class AbstractCommand extends Command
+{
 
     protected $mainDir;
     protected $environmentDir;
@@ -48,5 +48,4 @@ class AbstractCommand extends Command {
     {
         return $this->environmentDir;
     }
-
 }

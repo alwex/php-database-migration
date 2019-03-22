@@ -8,8 +8,8 @@
 
 namespace Migrate\Utils;
 
-
-class InputStreamUtil {
+class InputStreamUtil
+{
 
     public static function type($input)
     {
@@ -19,5 +19,4 @@ class InputStreamUtil {
 
         return $stream;
     }
-
 }

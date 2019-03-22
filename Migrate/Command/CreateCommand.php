@@ -51,5 +51,4 @@ class CreateCommand extends AbstractEnvCommand
             system("vim $migrationFullPath  > `tty`");
         }
     }
-
 }

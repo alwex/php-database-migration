@@ -12,6 +12,6 @@ class PhpConfigParser extends BaseConfigParser
 {
     public function parse()
     {
-        return require $this->configFile;
+        return include $this->configFile;
     }
 }
