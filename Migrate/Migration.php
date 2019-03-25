@@ -178,12 +178,12 @@ class Migration
     {
         $filePath=$migrationDir . '/' . $this->getFile();
         if (file_exists($filePath)) {
-                $content = file_get_contents($filePath);
-                if ($content && strpos($content, '@UNDO') > 0) {
-                    $sql = explode('-- @UNDO', $content);
-                    $this->setSqlUp($sql[0]);
-                    $this->setSqlDown($sql[1]);
-                }
+            $content = file_get_contents($filePath);
+            if ($content && strpos($content, '@UNDO') > 0) {
+                $sql = explode('-- @UNDO', $content);
+                $this->setSqlUp($sql[0]);
+                $this->setSqlDown($sql[1]);
             }
+        }
     }
 }

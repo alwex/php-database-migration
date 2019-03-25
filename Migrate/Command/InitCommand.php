@@ -11,7 +11,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class InitCommand extends AbstractEnvCommand {
+class InitCommand extends AbstractEnvCommand
+{
 
     protected function configure()
     {
@@ -22,8 +23,7 @@ class InitCommand extends AbstractEnvCommand {
                 'env',
                 InputArgument::REQUIRED,
                 'Environment'
-            )
-        ;
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -32,7 +32,8 @@ class InitCommand extends AbstractEnvCommand {
 
         $changelog = $this->getChangelogTable();
 
-        $this->getDb()->exec("
+        $this->getDb()->exec(
+            "
             CREATE table $changelog
             (
                 id numeric(20,0),
@@ -40,9 +41,9 @@ class InitCommand extends AbstractEnvCommand {
                 version character varying(25),
                 description character varying(255)
             )
-        ");
+        "
+        );
 
         $output->writeln("changelog table ($changelog) successfully created");
     }
-
 }

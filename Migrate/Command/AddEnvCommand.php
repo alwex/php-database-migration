@@ -14,7 +14,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 
-class AddEnvCommand extends AbstractEnvCommand {
+class AddEnvCommand extends AbstractEnvCommand
+{
 
     protected function configure()
     {
@@ -25,8 +26,7 @@ class AddEnvCommand extends AbstractEnvCommand {
                 'format',
                 InputArgument::OPTIONAL,
                 'Environment file format: (yml, json or php), default: yml'
-            )
-        ;
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -43,15 +43,15 @@ class AddEnvCommand extends AbstractEnvCommand {
         }
 
         // init directories
-        if(! file_exists($this->getMainDir())) {
+        if (! file_exists($this->getMainDir())) {
             mkdir($this->getMainDir());
         }
 
-        if(! file_exists($this->getEnvironmentDir())) {
+        if (! file_exists($this->getEnvironmentDir())) {
             mkdir($this->getEnvironmentDir());
         }
 
-        if(! file_exists($this->getMigrationDir())) {
+        if (! file_exists($this->getMigrationDir())) {
             mkdir($this->getMigrationDir());
         }
 
@@ -61,7 +61,7 @@ class AddEnvCommand extends AbstractEnvCommand {
         $questions = $this->getHelperSet()->get('question');
 
         $envQuestion = new Question("Please enter the name of the new environment <info>(default dev)</info>: ", "dev");
-        $envName = $questions->ask($input, $output, $envQuestion );
+        $envName = $questions->ask($input, $output, $envQuestion);
 
         $envConfigFile = $this->getEnvironmentDir() . '/' . $envName . '.' . $format;
         if (file_exists($envConfigFile)) {
@@ -71,7 +71,8 @@ class AddEnvCommand extends AbstractEnvCommand {
         $driverQuestion = new ChoiceQuestion("Please chose your pdo driver", $drivers);
         $driver = $questions->ask($input, $output, $driverQuestion);
 
-        $dbNameQuestion = new Question("Please enter the database name (or the database file location) (if needed): ", "~");
+        $dbNameQuestion =
+            new Question("Please enter the database name (or the database file location) (if needed): ", "~");
         $dbName = $questions->ask($input, $output, $dbNameQuestion);
 
         $dbHostQuestion = new Question("Please enter the database host (if needed): ", "~");
@@ -89,10 +90,16 @@ class AddEnvCommand extends AbstractEnvCommand {
         $dbCharsetQuestion = new Question("Please enter the database charset (if needed): ", "~");
         $dbCharset = $questions->ask($input, $output, $dbCharsetQuestion);
 
-        $changelogTableQuestion = new Question("Please enter the changelog table <info>(default changelog)</info>: ", "changelog");
+        $changelogTableQuestion = new Question(
+            "Please enter the changelog table <info>(default changelog)</info>: ",
+            "changelog"
+        );
         $changelogTable = $questions->ask($input, $output, $changelogTableQuestion);
 
-        $defaultEditorQuestion = new Question("Please enter the text editor to use by default <info>(default vim)</info>: ", "vim");
+        $defaultEditorQuestion = new Question(
+            "Please enter the text editor to use by default <info>(default vim)</info>: ",
+            "vim"
+        );
         $defaultEditor = $questions->ask($input, $output, $defaultEditorQuestion);
 
         $confTemplate = file_get_contents(__DIR__ . '/../../templates/env.' . $format . '.tpl');

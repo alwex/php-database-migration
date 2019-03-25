@@ -8,7 +8,6 @@
 
 namespace Migrate\Command;
 
-
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -37,8 +36,7 @@ class StatusCommand extends AbstractEnvCommand
                 null,
                 InputOption::VALUE_REQUIRED,
                 'DB driver'
-            )
-        ;
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

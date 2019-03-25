@@ -32,7 +32,9 @@ class CreateCommand extends AbstractEnvCommand
         $descriptionQuestion = new Question("Please enter a description: ");
         $description = $questions->ask($input, $output, $descriptionQuestion);
         $editor=getenv("EDITOR");
-        if (empty($editor)) $editor="vi";
+        if (empty($editor)) {
+            $editor="vi";
+        }
         $editorQuestion = new Question("Please chose which editor to use <info>(default $editor)</info>: ", "$editor");
         $editor=$questions->ask($input, $output, $editorQuestion);
 
@@ -56,5 +58,4 @@ class CreateCommand extends AbstractEnvCommand
             system("$editor $migrationFullPath  > `tty`");
         }
     }
-
 }
