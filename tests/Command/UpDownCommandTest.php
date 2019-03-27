@@ -109,6 +109,26 @@ EXPECTED;
         $this->assertEquals($expected, $commandTester->getDisplay());
     }
 
+    public function testUpAllPendingMigrationsInMinimal()
+    {
+        $command = self::$application->find('migrate:up');
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(array(
+            'command' => $command->getName(),
+            'env' => 'minimal',
+            '--database' => 'migrate_test',
+            '--driver' => 'sqlite'
+        ));
+
+        $expected =<<<EXPECTED
+connected
+your database is already up to date
+
+EXPECTED;
+
+        $this->assertEquals($expected, $commandTester->getDisplay());
+    }
+
     public function testDownLastMigration()
     {
         $command = self::$application->find('migrate:up');
@@ -143,10 +163,37 @@ EXPECTED;
         $this->assertEquals($expected, $commandTester->getDisplay());
     }
 
+        public function testDownLastMigrationInMinimal()
+    {
+
+        $command = self::$application->find('migrate:down');
+        $commandTester = new CommandTester($command);
+
+        /* @var $question QuestionHelper */
+        $question = $command->getHelper('question');
+        $question->setInputStream(InputStreamUtil::type("yes\n"));
+
+        $commandTester->execute(array(
+            'command' => $command->getName(),
+            'env' => 'testing',
+            '--database' => 'migrate_test',
+            '--driver' => 'sqlite'
+        ));
+
+        $expected =<<<EXPECTED
+connected
+Are you sure? (yes/no) [no]: your database is already up to date
+
+EXPECTED;
+
+        $this->assertEquals($expected, $commandTester->getDisplay());
+    }
+
     public function testUpOnly()
     {
         $command = self::$application->find('migrate:up');
         $commandTester = new CommandTester($command);
+        $currentDate = date('Y-m-d H:i:s');
 
         $commandTester->execute(array(
             'command' => $command->getName(),
@@ -166,7 +213,6 @@ EXPECTED;
         $command = self::$application->find('migrate:status');
         $commandTester = new CommandTester($command);
 
-        $currentDate = date('Y-m-d H:i:s');
 
         $commandTester->execute(array(
             'command' => $command->getName(),
