@@ -303,6 +303,7 @@ EXPECTED;
 
     public function testUpTo()
     {
+        $time0=time();
         $command = self::$application->find('migrate:up');
         $commandTester = new CommandTester($command);
 
@@ -325,7 +326,7 @@ EXPECTED;
         $command = self::$application->find('migrate:status');
         $commandTester = new CommandTester($command);
 
-        $currentDate = date('Y-m-d H:i:s');
+        $currentDate = date('Y-m-d H:i:s',$time0);
 
         $commandTester->execute(array(
             'command' => $command->getName(),
@@ -345,11 +346,14 @@ connected
 
 EXPECTED;
 
+        $testResult=$commandTester->getDisplay();
+        $testResult=str_replace(date('Y-m-d H:i:s',$time0+1),$currentDate,$testResult);
         $this->assertEquals($expected, $commandTester->getDisplay());
     }
 
     public function testDownTo()
     {
+        $time0=time();
         $command = self::$application->find('migrate:up');
         $commandTester = new CommandTester($command);
 
@@ -384,12 +388,13 @@ EXPECTED;
         $command = self::$application->find('migrate:status');
         $commandTester = new CommandTester($command);
 
-        $currentDate = date('Y-m-d H:i:s');
+        $currentDate = date('Y-m-d H:i:s',$time0);
 
         $commandTester->execute(array(
             'command' => $command->getName(),
             'env' => 'testing'
         ));
+        $currentDate = date('Y-m-d H:i:s',$time0);
 
 
         $expected =<<<EXPECTED
@@ -403,8 +408,9 @@ connected
 +----+---------+---------------------+-------------+
 
 EXPECTED;
-
-        $this->assertEquals($expected, $commandTester->getDisplay());
+        $testResult=$commandTester->getDisplay();
+        $testResult=str_replace(date('Y-m-d H:i:s',$time0+1),$currentDate,$testResult);
+        $this->assertEquals($expected, $testResult);
     }
 
     /**
