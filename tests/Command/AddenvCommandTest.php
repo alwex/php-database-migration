@@ -44,7 +44,6 @@ class AddenvCommandTest extends AbstractCommandTester
         foreach ($pdoDrivers as $key => $driver) {
             $driverSelect .= "  [$key] $driver\n";
         }
-        echo "drivers: $driverKey \n$driverSelect\n";
         /* @var $question QuestionHelper */
         $question = $command->getHelper('question');
         $question->setInputStream(InputStreamUtil::type("testing\n$driverKey\nmigrate_test\nlocalhost\n5432\naguidet\naguidet\nutf8\nchangelog\nvim\n"));
