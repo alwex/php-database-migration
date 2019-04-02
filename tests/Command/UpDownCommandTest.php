@@ -109,26 +109,6 @@ EXPECTED;
         $this->assertEquals($expected, $commandTester->getDisplay());
     }
 
-    public function testUpAllPendingMigrationsInMinimal()
-    {
-        $command = self::$application->find('migrate:up');
-        $commandTester = new CommandTester($command);
-        $commandTester->execute(array(
-            'command' => $command->getName(),
-            'env' => 'minimal',
-            '--database' => 'migrate_test',
-            '--driver' => 'sqlite'
-        ));
-
-        $expected =<<<EXPECTED
-connected
-your database is already up to date
-
-EXPECTED;
-
-        $this->assertEquals($expected, $commandTester->getDisplay());
-    }
-
     public function testDownLastMigration()
     {
         $command = self::$application->find('migrate:up');
@@ -157,32 +137,6 @@ EXPECTED;
 connected
 Are you sure? (yes/no) [no]: 0/1 [>---------------------------] 0 % []
 1/1 [============================] 100 % [migration]
-
-EXPECTED;
-
-        $this->assertEquals($expected, $commandTester->getDisplay());
-    }
-
-        public function testDownLastMigrationInMinimal()
-    {
-
-        $command = self::$application->find('migrate:down');
-        $commandTester = new CommandTester($command);
-
-        /* @var $question QuestionHelper */
-        $question = $command->getHelper('question');
-        $question->setInputStream(InputStreamUtil::type("yes\n"));
-
-        $commandTester->execute(array(
-            'command' => $command->getName(),
-            'env' => 'testing',
-            '--database' => 'migrate_test',
-            '--driver' => 'sqlite'
-        ));
-
-        $expected =<<<EXPECTED
-connected
-Are you sure? (yes/no) [no]: your database is already up to date
 
 EXPECTED;
 
@@ -348,6 +302,7 @@ EXPECTED;
 
         $testResult=$commandTester->getDisplay();
         $testResult=str_replace(date('Y-m-d H:i:s',$time0+1),$currentDate,$testResult);
+        $testResult=str_replace(date('Y-m-d H:i:s',$time0+2),$currentDate,$testResult);
         $this->assertEquals($expected, $commandTester->getDisplay());
     }
 

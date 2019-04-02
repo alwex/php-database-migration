@@ -44,14 +44,12 @@ class AddenvCommandTest extends AbstractCommandTester
         foreach ($pdoDrivers as $key => $driver) {
             $driverSelect .= "  [$key] $driver\n";
         }
-
+        echo "drivers: $driverKey \n$driverSelect\n";
         /* @var $question QuestionHelper */
         $question = $command->getHelper('question');
         $question->setInputStream(InputStreamUtil::type("testing\n$driverKey\nmigrate_test\nlocalhost\n5432\naguidet\naguidet\nutf8\nchangelog\nvim\n"));
 
         $commandTester->execute(array('command' => $command->getName()));
-
-        $expected = "Please enter the name of the new environment (default dev): Please chose your pdo driver\n$driverSelect > 0\nPlease enter the database name (or the database file location): Please enter the database host (if needed): Please enter the database port (if needed): Please enter the database user name (if needed): Please enter the database user password (if needed): Please enter the changelog table (default changelog): Please enter the text editor to use by default (default vim): ";
 
         $this->assertRegExp('/Please enter the name of the new environment/', $commandTester->getDisplay());
 
