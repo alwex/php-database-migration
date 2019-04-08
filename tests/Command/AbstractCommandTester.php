@@ -48,7 +48,9 @@ class AbstractCommandTester extends \PHPUnit_Framework_TestCase
         /* @var $question QuestionHelper */
         $question = $command->getHelper('question');
         $question->setInputStream(InputStreamUtil::type("testing\n$driverKey\ntest.sqlite\n\n\n\n\n\nchangelog\nvim\n"));
-
+        $commandTester->execute(array('command' => $command->getName(), 'format' => $format));
+        $question = $command->getHelper('question');
+        $question->setInputStream(InputStreamUtil::type("minimal\nsqlite\n\n\n\n\n\n\nchangelog\n\n"));
         $commandTester->execute(array('command' => $command->getName(), 'format' => $format));
     }
 
@@ -63,6 +65,12 @@ class AbstractCommandTester extends \PHPUnit_Framework_TestCase
         $commandTester->execute(array(
             'command' => $command->getName(),
             'env' => 'testing'
+        ));
+        $commandTester->execute(array(
+            'command' => $command->getName(),
+            'env' => 'minimal',
+            '--database' => 'migrate_test',
+            '--driver' => 'sqlite'
         ));
     }
 

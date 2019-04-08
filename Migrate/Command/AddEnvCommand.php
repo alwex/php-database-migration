@@ -68,10 +68,11 @@ class AddEnvCommand extends AbstractEnvCommand
             throw new \InvalidArgumentException("environment [$envName] is already defined!");
         }
 
-        $driverQuestion = new ChoiceQuestion("Please chose your pdo driver", $drivers);
+        $driverQuestion = new ChoiceQuestion("Please choose your pdo driver", $drivers);
         $driver = $questions->ask($input, $output, $driverQuestion);
 
-        $dbNameQuestion = new Question("Please enter the database name (or the database file location): ", "~");
+        $dbNameQuestion =
+            new Question("Please enter the database name (or the database file location) (if needed): ", "~");
         $dbName = $questions->ask($input, $output, $dbNameQuestion);
 
         $dbHostQuestion = new Question("Please enter the database host (if needed): ", "~");

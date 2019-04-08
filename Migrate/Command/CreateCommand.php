@@ -31,16 +31,23 @@ class CreateCommand extends AbstractEnvCommand
 
         $descriptionQuestion = new Question("Please enter a description: ");
         $description = $questions->ask($input, $output, $descriptionQuestion);
-
-        $editorQuestion = new Question("Please chose which editor to use <info>(default vim)</info>: ", "vim");
-        $questions->ask($input, $output, $editorQuestion);
+        $editor=getenv("EDITOR");
+        if (empty($editor)) {
+            $editor="vi";
+        }
+        $editorQuestion = new Question("Please chose which editor to use <info>(default $editor)</info>: ", "$editor");
+        $editor=$questions->ask($input, $output, $editorQuestion);
 
         $slugger = new Slugify();
         $filename = $slugger->slugify($description);
         $timestamp = str_pad(str_replace(".", "", microtime(true)), 14, "0");
         $filename = $timestamp . '_' . $filename . '.sql';
 
-        $templateFile = file_get_contents(__DIR__ . '/../../templates/migration.tpl');
+        if (file_exists($this->getMigrationDir() . '/../' .'migration.tpl')) {
+            $templateFile = file_get_contents($this->getMigrationDir() . '/../' .'migration.tpl');
+        } else {
+            $templateFile = file_get_contents(__DIR__ . '/../../templates/migration.tpl');
+        }
         $templateFile = str_replace('{DESCRIPTION}', $description, $templateFile);
 
         $migrationFullPath = $this->getMigrationDir() . '/' . $filename;
@@ -48,7 +55,7 @@ class CreateCommand extends AbstractEnvCommand
         $output->writeln("<info>$migrationFullPath created</info>");
 
         if (!defined('PHPUNIT')) {
-            system("vim $migrationFullPath  > `tty`");
+            system("$editor $migrationFullPath  > `tty`");
         }
     }
 }

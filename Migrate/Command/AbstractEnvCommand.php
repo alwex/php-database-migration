@@ -69,7 +69,6 @@ class AbstractEnvCommand extends AbstractCommand
         $parser = $configLocator->locate($env);
 
         $conf = $parser->parse();
-
         $this->config = $conf;
 
         $driver = ArrayUtil::get($conf['connection'], 'driver');
@@ -79,9 +78,16 @@ class AbstractEnvCommand extends AbstractCommand
         $username = ArrayUtil::get($conf['connection'], 'username');
         $password = ArrayUtil::get($conf['connection'], 'password');
         $charset = ArrayUtil::get($conf['connection'], 'charset');
-
+        if (empty($host)) {
+            $host = "localhost";
+        }
+        if (empty($dbname)) {
+            $dbname = $input->getOption('database');
+        }
+        if (empty($driver)) {
+            $dbname = $input->getOption('driver');
+        }
         $uri = $driver;
-
         if ($driver == 'sqlite') {
             $uri .= ":$dbname";
         } else {
@@ -110,8 +116,10 @@ class AbstractEnvCommand extends AbstractCommand
 
         $migrations = array();
         foreach ($fileList as $file) {
-            $migration = Migration::createFromFile($file, $this->getMigrationDir());
-            $migrations[$migration->getId()] = $migration;
+            if (substr($file, -4) == ".sql") { // Skip backup files, etc.
+                $migration = Migration::createFromFile($file, $this->getMigrationDir());
+                $migrations[$migration->getId()] = $migration;
+            }
         }
 
         ksort($migrations);
