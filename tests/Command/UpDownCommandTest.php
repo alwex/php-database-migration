@@ -257,7 +257,7 @@ EXPECTED;
 
     public function testUpTo()
     {
-        $time0=time();
+        $time0 = time();
         $command = self::$application->find('migrate:up');
         $commandTester = new CommandTester($command);
 
@@ -279,9 +279,7 @@ EXPECTED;
 
         $command = self::$application->find('migrate:status');
         $commandTester = new CommandTester($command);
-
         $currentDate = date('Y-m-d H:i:s',$time0);
-
         $commandTester->execute(array(
             'command' => $command->getName(),
             'env' => 'testing'
@@ -300,9 +298,9 @@ connected
 
 EXPECTED;
 
-        $testResult=$commandTester->getDisplay();
-        $testResult=str_replace(date('Y-m-d H:i:s',$time0+1),$currentDate,$testResult);
-        $testResult=str_replace(date('Y-m-d H:i:s',$time0+2),$currentDate,$testResult);
+        $testResult = $commandTester->getDisplay();
+        $testResult = str_replace(date('Y-m-d H:i:s',$time0+1),$currentDate,$testResult);
+        $testResult = str_replace(date('Y-m-d H:i:s',$time0+2),$currentDate,$testResult);
         $this->assertEquals($expected, $commandTester->getDisplay());
     }
 
@@ -311,7 +309,6 @@ EXPECTED;
         $time0=time();
         $command = self::$application->find('migrate:up');
         $commandTester = new CommandTester($command);
-
         $commandTester->execute(array(
             'command' => $command->getName(),
             'env' => 'testing',
@@ -339,19 +336,14 @@ Are you sure? (yes/no) [no]: 0/2 [>---------------------------] 0 % []
 EXPECTED;
 
         $this->assertEquals($expected, $commandTester->getDisplay());
-
         $command = self::$application->find('migrate:status');
         $commandTester = new CommandTester($command);
-
         $currentDate = date('Y-m-d H:i:s',$time0);
-
         $commandTester->execute(array(
             'command' => $command->getName(),
             'env' => 'testing'
         ));
         $currentDate = date('Y-m-d H:i:s',$time0);
-
-
         $expected =<<<EXPECTED
 connected
 +----+---------+---------------------+-------------+
@@ -363,8 +355,8 @@ connected
 +----+---------+---------------------+-------------+
 
 EXPECTED;
-        $testResult=$commandTester->getDisplay();
-        $testResult=str_replace(date('Y-m-d H:i:s',$time0+1),$currentDate,$testResult);
+        $testResult = $commandTester->getDisplay();
+        $testResult = str_replace(date('Y-m-d H:i:s',$time0+1),$currentDate,$testResult);
         $this->assertEquals($expected, $testResult);
     }
 
