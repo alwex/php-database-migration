@@ -95,11 +95,15 @@ $ ./bin/migrate migrate:create
 Migrations file are like this
 
     -- // add table users
+    -- @ENVIRONMENTS [DEV,QA]
     -- Migration SQL that makes the change goes here.
     create table users (id integer, name text);
     -- @UNDO
     -- SQL to undo the change goes here.
     drop table users;
+
+You can restrict which environment uses this SQL with "@ENVIRONMENT" annotation. Values inside array brackets can be
+one or more comma separated environment values OR "ANY" 
 
 List migrations
 ------------------

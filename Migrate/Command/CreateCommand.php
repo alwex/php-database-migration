@@ -32,8 +32,18 @@ class CreateCommand extends AbstractEnvCommand
         $descriptionQuestion = new Question("Please enter a description: ");
         $description = $questions->ask($input, $output, $descriptionQuestion);
 
+        $question = "Please comma separate list the environments to allow or <info>(default ANY)</info>: ";
+        $descriptionQuestion = new Question($question, "ANY");
+        $environments = $questions->ask($input, $output, $descriptionQuestion);
+
+        $tokens = explode(' ', trim($environments));
+        if (count($tokens) > 1) {
+            $environments = implode(',', array_map('trim', $tokens));
+        }
+        $environments = strtoupper(str_replace(',,', ',', $environments));
+
         $editorQuestion = new Question("Please chose which editor to use <info>(default vim)</info>: ", "vim");
-        $questions->ask($input, $output, $editorQuestion);
+        $editor = $questions->ask($input, $output, $editorQuestion);
 
         $slugger = new Slugify();
         $filename = $slugger->slugify($description);
@@ -42,13 +52,14 @@ class CreateCommand extends AbstractEnvCommand
 
         $templateFile = file_get_contents(__DIR__ . '/../../templates/migration.tpl');
         $templateFile = str_replace('{DESCRIPTION}', $description, $templateFile);
+        $templateFile = str_replace('{ENVIRONMENTS}', $environments, $templateFile);
 
         $migrationFullPath = $this->getMigrationDir() . '/' . $filename;
         file_put_contents($migrationFullPath, $templateFile);
         $output->writeln("<info>$migrationFullPath created</info>");
 
         if (!defined('PHPUNIT')) {
-            system("vim $migrationFullPath  > `tty`");
+            system("{$editor} $migrationFullPath  > `tty`");
         }
     }
 }

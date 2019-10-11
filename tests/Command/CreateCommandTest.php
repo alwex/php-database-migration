@@ -42,6 +42,8 @@ class CreateCommandTest extends AbstractCommandTester
         /* @var $question QuestionHelper */
         $question = $command->getHelper('question');
         $question->setInputStream(InputStreamUtil::type("je suis une super migration &&&ééé\n\n:x\n"));
+        $question = $command->getHelper('question');
+        $question->setInputStream(InputStreamUtil::type("testing\n\n:x\n"));
 
         $commandTester->execute(array('command' => $command->getName()));
 
@@ -53,7 +55,7 @@ class CreateCommandTest extends AbstractCommandTester
         $this->assertFileExists($fileName);
         $content = file_get_contents($fileName);
         $expected =<<<EXPECTED
--- // je suis une super migration &&&ééé\n-- Migration SQL that makes the change goes here.\n\n-- @UNDO\n-- SQL to undo the change goes here.\n
+-- // je suis une super migration &&&ééé\n-- @ENVIRONMENTS [TESTING]\n-- Migration SQL that makes the change goes here.\n\n-- @UNDO\n-- SQL to undo the change goes here.\n
 EXPECTED;
 
         $this->assertEquals($expected, $content);

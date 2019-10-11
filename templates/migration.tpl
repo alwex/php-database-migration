@@ -1,4 +1,5 @@
 -- // {DESCRIPTION}
+-- @ENVIRONMENTS [{ENVIRONMENTS}]
 -- Migration SQL that makes the change goes here.
 
 -- @UNDO

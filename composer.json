@@ -34,6 +34,9 @@
   "config": {
     "bin-dir": "bin"
   },
+  "scripts": {
+      "phpcs": "bin/phpcs --standard=PSR2 Migrate/"
+  },
   "autoload": {
     "psr-4": {
       "Migrate\\": "Migrate/"

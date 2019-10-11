@@ -20,6 +20,7 @@ class Migration
     private $version;
     private $sqlUp;
     private $sqlDown;
+    private $allowedEnvironments = ['ANY'];
 
     /**
      * @return mixed
@@ -133,6 +134,23 @@ class Migration
         $this->sqlDown = $sqlDown;
     }
 
+    /**
+     * @return array
+     */
+    public function getAllowedEnvironments()
+    {
+        return $this->allowedEnvironments;
+    }
+
+    /**
+     * @param array
+     */
+    public function setAllowedEnvironments($allowedEnvironments)
+    {
+        $items = array_map('strtoupper', $allowedEnvironments);
+        $this->allowedEnvironments = $items;
+    }
+
     public static function createFromFile($filename, $migrationDir)
     {
         $data = explode('_', $filename);
@@ -178,10 +196,20 @@ class Migration
     public function load($migrationDir)
     {
         $content = file_get_contents($migrationDir . '/' . $this->getFile());
-        if ($content && strpos($content, '@UNDO') > 0) {
-            $sql = explode('-- @UNDO', $content);
-            $this->setSqlUp($sql[0]);
-            $this->setSqlDown($sql[1]);
+
+        if ($content) {
+            if (strpos($content, '@ENVIRONMENTS') > 0) {
+                if (preg_match('/-- @ENVIRONMENTS \[(.+)\]/', $content, $matches)) {
+                    $tokens = explode(',', $matches[1]);
+                    $this->setAllowedEnvironments(array_map('strtoupper', $tokens));
+                }
+            }
+
+            if (strpos($content, '@UNDO') > 0) {
+                $sql = explode('-- @UNDO', $content);
+                $this->setSqlUp($sql[0]);
+                $this->setSqlDown($sql[1]);
+            }
         }
     }
 }
