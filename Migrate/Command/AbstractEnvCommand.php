@@ -325,8 +325,6 @@ class AbstractEnvCommand extends AbstractCommand
     {
         $allowed = $migration->getAllowedEnvironments();
 
-        print_r([$this->environment, $allowed]);
-
         return in_array(strtoupper($this->environment), $allowed) || in_array('ANY', $allowed);
     }
 }
