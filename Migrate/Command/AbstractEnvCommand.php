@@ -30,6 +30,11 @@ class AbstractEnvCommand extends AbstractCommand
     private $config;
 
     /**
+     * @var string
+     */
+    private $environment;
+
+    /**
      * @return \PDO
      */
     public function getDb()
@@ -65,6 +70,8 @@ class AbstractEnvCommand extends AbstractCommand
         if ($env === null) {
             $env = $input->getArgument('env');
         }
+
+        $this->environment = $env;
 
         $parser = $configLocator->locate($env);
 
@@ -212,7 +219,7 @@ class AbstractEnvCommand extends AbstractCommand
     {
         $this->getDb()->beginTransaction();
 
-        if ($changeLogOnly === false) {
+        if ($changeLogOnly === false && $this->isEnvironmentAllowed($migration)) {
             $result = $this->getDb()->exec($migration->getSqlUp());
 
             if ($result === false) {
@@ -244,7 +251,7 @@ class AbstractEnvCommand extends AbstractCommand
     {
         $this->getDb()->beginTransaction();
 
-        if ($changeLogOnly === false) {
+        if ($changeLogOnly === false && $this->isEnvironmentAllowed($migration)) {
             $result = $this->getDb()->exec($migration->getSqlDown());
 
             if ($result === false) {
@@ -312,5 +319,12 @@ class AbstractEnvCommand extends AbstractCommand
         }
 
         return $toExecute;
+    }
+
+    protected function isEnvironmentAllowed(Migration $migration)
+    {
+        $allowed = $migration->getAllowedEnvironments();
+
+        return in_array(strtoupper($this->environment), $allowed) || in_array('ANY', $allowed);
     }
 }

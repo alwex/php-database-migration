@@ -53,7 +53,7 @@ class CreateCommandTest extends AbstractCommandTester
         $this->assertFileExists($fileName);
         $content = file_get_contents($fileName);
         $expected =<<<EXPECTED
--- // je suis une super migration &&&ééé\n-- Migration SQL that makes the change goes here.\n\n-- @UNDO\n-- SQL to undo the change goes here.\n
+-- // je suis une super migration &&&ééé\n-- @ENVIRONMENTS [ANY]\n-- Migration SQL that makes the change goes here.\n\n-- @UNDO\n-- SQL to undo the change goes here.\n
 EXPECTED;
 
         $this->assertEquals($expected, $content);
