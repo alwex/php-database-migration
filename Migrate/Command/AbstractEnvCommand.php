@@ -79,8 +79,13 @@ class AbstractEnvCommand extends AbstractCommand
         $username = ArrayUtil::get($conf['connection'], 'username');
         $password = ArrayUtil::get($conf['connection'], 'password');
         $charset = ArrayUtil::get($conf['connection'], 'charset');
+		$sslCert = ArrayUtil::get($conf['connection'], 'cert');
+		$sslCertVerify = ArrayUtil::get($conf['connection'], 'cert-verify') || false;
+		$sslKey = ArrayUtil::get($conf['connection'], 'ssl-key');
+		$sslSecret = ArrayUtil::get($conf['connection'], 'ssl-secret');
 
         $uri = $driver;
+		$opt = array();
 
         if ($driver == 'sqlite') {
             $uri .= ":$dbname";
@@ -89,6 +94,22 @@ class AbstractEnvCommand extends AbstractCommand
             $uri .= ($host === null) ? '' : ";host=$host";
             $uri .= ($port === null) ? '' : ";port=$port";
             $uri .= ($charset === null) ? '' : ";charset=$charset";
+
+			// add an ssl cert
+			if (!empty($sslCert)) {
+				$opt['PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT'] => "'" . $sslCert . "'";
+				$opt['PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT'] => "'" . $sslCertVerify . "'";
+			}
+
+			// add ssl an key
+			if (!empty($sslKey)) {
+				$opt['PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT'] => "'" . $sslKey . "'";
+			}
+
+			// add ssl an secret
+			if (!empty($sslSecret)) {
+				$opt['PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT'] => "'" . $sslSecret . "'";
+			}
         }
         $this->db = new \PDO(
             $uri,
