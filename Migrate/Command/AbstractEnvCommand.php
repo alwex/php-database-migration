@@ -79,13 +79,12 @@ class AbstractEnvCommand extends AbstractCommand
         $username = ArrayUtil::get($conf['connection'], 'username');
         $password = ArrayUtil::get($conf['connection'], 'password');
         $charset = ArrayUtil::get($conf['connection'], 'charset');
-		$sslCert = ArrayUtil::get($conf['connection'], 'cert');
-		$sslCertVerify = ArrayUtil::get($conf['connection'], 'cert-verify') || false;
-		$sslKey = ArrayUtil::get($conf['connection'], 'ssl-key');
-		$sslSecret = ArrayUtil::get($conf['connection'], 'ssl-secret');
+        $sslCaCert = ArrayUtil::get($conf['connection'], 'ssl-ca-cert');
+        $sslCert = ArrayUtil::get($conf['connection'], 'ssl-cert');
+        $sslKey = ArrayUtil::get($conf['connection'], 'ssl-key');
 
         $uri = $driver;
-		$opt = array();
+        $opt = array();
 
         if ($driver == 'sqlite') {
             $uri .= ":$dbname";
@@ -95,27 +94,27 @@ class AbstractEnvCommand extends AbstractCommand
             $uri .= ($port === null) ? '' : ";port=$port";
             $uri .= ($charset === null) ? '' : ";charset=$charset";
 
-			// add an ssl cert
-			if (!empty($sslCert)) {
-				$opt['PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT'] => "'" . $sslCert . "'";
-				$opt['PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT'] => "'" . $sslCertVerify . "'";
-			}
+            // add an ssl ca cert
+            if (!empty($sslCaCert)) {
+                $opt[\PDO::MYSQL_ATTR_SSL_CA] = $sslCaCert;
+            }
 
-			// add ssl an key
-			if (!empty($sslKey)) {
-				$opt['PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT'] => "'" . $sslKey . "'";
-			}
+            // add an ssl cert
+            if (!empty($sslCert)) {
+                $opt[\PDO::MYSQL_ATTR_SSL_CERT] = $sslCert;
+            }
 
-			// add ssl an secret
-			if (!empty($sslSecret)) {
-				$opt['PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT'] => "'" . $sslSecret . "'";
-			}
+            // add an ssl key
+            if (!empty($sslKey)) {
+                $opt[\PDO::MYSQL_ATTR_SSL_KEY] = $sslKey;
+            }
         }
+
         $this->db = new \PDO(
             $uri,
             $username,
             $password,
-            array()
+            $opt
         );
 
         $output->writeln('<info>connected</info>');
