@@ -8,10 +8,9 @@ return [
         "username" => "{USERNAME}",
         "password" => "{PASSWORD}",
         "database" => "{DATABASE}",
-		"ssl-cert" => "{SSLCERT}",
-		"ssl-cert-verify" => "{SSLCERTVERIFY}",
-		"ssl-key" => "{SSLKEY}",
-		"ssl-secret" => "{SSLSECRET}",
+        "ssl-ca-cert" => "{SSLCACERT}",
+        "ssl-cert" => "{SSLCERT}",
+        "ssl-key" => "{SSLKEY}",
     ],
     "changelog" => "{CHANGELOG}",
     "default_editor" => "{EDITOR}"

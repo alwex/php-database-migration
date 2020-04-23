@@ -101,29 +101,23 @@ class AddEnvCommand extends AbstractEnvCommand
         );
         $defaultEditor = $questions->ask($input, $output, $defaultEditorQuestion);
 
-		$sslCertQuestion = new Question(
-            "Please enter the path and name of the SSL certificate to use (if any): ",
+        $sslCaCertQuestion = new Question(
+            "Please enter the path and name of the SSL certificate authority certificate to use (if any): ",
             "vim"
+        );
+        $sslCaCert = $questions->ask($input, $output, $sslCaCertQuestion);
+
+        $sslCertQuestion = new Question(
+            "Please enter the path and name of the SSL certificate to use (if any): ",
+            ""
         );
         $sslCert = $questions->ask($input, $output, $sslCertQuestion);
 
-		$sslCertVerifyQuestion = new Question(
-            "Please enter whether to verify the SSL certificate <info>(default false)</info>: ",
-            "vim"
-        );
-        $sslCertVerify = $questions->ask($input, $output, $sslCertVerifyQuestion);
-
-		$sslKeyQuestion = new Question(
-            "Please enter the text editor to use by default <info>(default vim)</info>: ",
-            "vim"
+        $sslKeyQuestion = new Question(
+            "Please enter the path and name of the SSL certificate key to use (if any): ",
+            ""
         );
         $sslKey = $questions->ask($input, $output, $sslKeyQuestion);
-
-		$sslSecretQuestion = new Question(
-            "Please enter the text editor to use by default <info>(default vim)</info>: ",
-            "vim"
-        );
-        $sslSecret = $questions->ask($input, $output, $sslSecretQuestion);
 
         $confTemplate = file_get_contents(__DIR__ . '/../../templates/env.' . $format . '.tpl');
         $confTemplate = str_replace('{DRIVER}', $driver, $confTemplate);
@@ -135,10 +129,9 @@ class AddEnvCommand extends AbstractEnvCommand
         $confTemplate = str_replace('{CHARSET}', $dbCharset, $confTemplate);
         $confTemplate = str_replace('{CHANGELOG}', $changelogTable, $confTemplate);
         $confTemplate = str_replace('{EDITOR}', $defaultEditor, $confTemplate);
-		$confTemplate = str_replace('{SSLCERT}', $sslCert, $confTemplate);
-		$confTemplate = str_replace('{SSLCERTVERIFY}', $sslCertVerify, $confTemplate);
-		$confTemplate = str_replace('{SSLKEY}', $sslKey, $confTemplate);
-		$confTemplate = str_replace('{SSLSECRET}', $sslSecret, $confTemplate);
+        $confTemplate = str_replace('{SSLCACERT}', $sslCaCert, $confTemplate);
+        $confTemplate = str_replace('{SSLCERT}', $sslCert, $confTemplate);
+        $confTemplate = str_replace('{SSLKEY}', $sslKey, $confTemplate);
 
         file_put_contents($envConfigFile, $confTemplate);
     }
