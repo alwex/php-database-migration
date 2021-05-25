@@ -50,5 +50,7 @@ class CreateCommand extends AbstractEnvCommand
         if (!defined('PHPUNIT')) {
             system("vim $migrationFullPath  > `tty`");
         }
+
+        return 0;
     }
 }

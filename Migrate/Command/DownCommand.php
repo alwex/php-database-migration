@@ -85,5 +85,7 @@ class DownCommand extends AbstractEnvCommand
         } else {
             $output->writeln("<error>Rollback aborted</error>");
         }
+
+        return 0;
     }
 }
