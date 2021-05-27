@@ -134,5 +134,7 @@ class AddEnvCommand extends AbstractEnvCommand
         $confTemplate = str_replace('{SSLKEY}', $sslKey, $confTemplate);
 
         file_put_contents($envConfigFile, $confTemplate);
+
+        return 0;
     }
 }

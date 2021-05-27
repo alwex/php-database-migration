@@ -43,5 +43,7 @@ class StatusCommand extends AbstractEnvCommand
         }
 
         $table->render();
+
+        return 0;
     }
 }

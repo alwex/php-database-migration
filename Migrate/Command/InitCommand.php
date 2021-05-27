@@ -45,5 +45,7 @@ class InitCommand extends AbstractEnvCommand
         );
 
         $output->writeln("changelog table ($changelog) successfully created");
+
+        return 0;
     }
 }

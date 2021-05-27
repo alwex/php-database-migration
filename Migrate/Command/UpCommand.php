@@ -74,5 +74,7 @@ class UpCommand extends AbstractEnvCommand
             $progress->finish();
             $output->writeln("");
         }
+
+        return 0;
     }
 }
