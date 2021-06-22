@@ -22,7 +22,7 @@
         "symfony/process": "~5.2.7",
         "symfony/config": "^5.2",
         "cocur/slugify": "~1.0",
-        "symfony/yaml": "^4.4"
+        "symfony/yaml": "v5.3.2"
     },
     "require-dev": {
       "phpunit/phpunit": "*",
