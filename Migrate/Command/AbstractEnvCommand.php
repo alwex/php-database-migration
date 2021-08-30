@@ -79,8 +79,12 @@ class AbstractEnvCommand extends AbstractCommand
         $username = ArrayUtil::get($conf['connection'], 'username');
         $password = ArrayUtil::get($conf['connection'], 'password');
         $charset = ArrayUtil::get($conf['connection'], 'charset');
+        $sslCaCert = ArrayUtil::get($conf['connection'], 'ssl-ca-cert');
+        $sslCert = ArrayUtil::get($conf['connection'], 'ssl-cert');
+        $sslKey = ArrayUtil::get($conf['connection'], 'ssl-key');
 
         $uri = $driver;
+        $opt = array();
 
         if ($driver == 'sqlite') {
             $uri .= ":$dbname";
@@ -89,12 +93,28 @@ class AbstractEnvCommand extends AbstractCommand
             $uri .= ($host === null) ? '' : ";host=$host";
             $uri .= ($port === null) ? '' : ";port=$port";
             $uri .= ($charset === null) ? '' : ";charset=$charset";
+
+            // add an ssl ca cert
+            if (!empty($sslCaCert)) {
+                $opt[\PDO::MYSQL_ATTR_SSL_CA] = $sslCaCert;
+            }
+
+            // add an ssl cert
+            if (!empty($sslCert)) {
+                $opt[\PDO::MYSQL_ATTR_SSL_CERT] = $sslCert;
+            }
+
+            // add an ssl key
+            if (!empty($sslKey)) {
+                $opt[\PDO::MYSQL_ATTR_SSL_KEY] = $sslKey;
+            }
         }
+
         $this->db = new \PDO(
             $uri,
             $username,
             $password,
-            array()
+            $opt
         );
 
         $output->writeln('<info>connected</info>');
