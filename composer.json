@@ -1,7 +1,7 @@
 {
-    "name": "proper-media/php-database-migration",
+    "name": "sovrn/php-database-migration",
     "description": "rake and mybatis SQL migration tool",
-    "homepage": "https://github.com/proper-media/php-database-migration",
+    "homepage": "https://github.com/sovrn/php-database-migration",
     "keywords": [
       "rake",
       "mybatis",
